@@ -15,20 +15,34 @@ const FM = "'Space Mono', ui-monospace, monospace";
 
 function SignIn() {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState("idle"); // idle | sending | sent | error
+  const [password, setPassword] = useState("");
+  const [mode, setMode] = useState("password"); // password | link
+  const [status, setStatus] = useState("idle"); // idle | working | sent | error
   const [msg, setMsg] = useState("");
 
-  const send = async () => {
-    const clean = email.trim();
-    if (!clean || !clean.includes("@")) { setStatus("error"); setMsg("Enter a valid email address."); return; }
-    setStatus("sending"); setMsg("");
-    const { error } = await supabase.auth.signInWithOtp({
-      email: clean,
-      options: { emailRedirectTo: window.location.origin },
-    });
+  const signInPassword = async () => {
+    const e = email.trim();
+    if (!e || !e.includes("@")) { setStatus("error"); setMsg("Enter a valid email address."); return; }
+    if (!password) { setStatus("error"); setMsg("Enter your password."); return; }
+    setStatus("working"); setMsg("");
+    const { error } = await supabase.auth.signInWithPassword({ email: e, password });
     if (error) { setStatus("error"); setMsg(error.message); }
-    else { setStatus("sent"); setMsg(clean); }
+    // on success, the auth listener swaps to the app automatically
   };
+
+  const sendLink = async () => {
+    const e = email.trim();
+    if (!e || !e.includes("@")) { setStatus("error"); setMsg("Enter a valid email address."); return; }
+    setStatus("working"); setMsg("");
+    const { error } = await supabase.auth.signInWithOtp({ email: e, options: { emailRedirectTo: window.location.origin } });
+    if (error) { setStatus("error"); setMsg(error.message); }
+    else { setStatus("sent"); setMsg(e); }
+  };
+
+  const field = (extra) => ({
+    width: "100%", boxSizing: "border-box", font: `400 15px ${FD}`, padding: "12px 14px",
+    borderRadius: 10, background: BG, border: `1px solid ${status === "error" ? "#C7553F" : LINE}`, color: BONE, marginBottom: 12, ...extra,
+  });
 
   return (
     <div style={{ minHeight: "100vh", background: BG, color: BONE, fontFamily: FD,
@@ -49,31 +63,56 @@ function SignIn() {
                 We sent a sign-in link to <strong style={{ color: BONE }}>{msg}</strong>. Open it on this device
                 to come back signed in. You can close this tab.
               </p>
-              <button onClick={() => { setStatus("idle"); setEmail(""); }} className="dc-focus"
+              <button onClick={() => { setStatus("idle"); setMode("password"); }} className="dc-focus"
                 style={{ marginTop: 18, font: `700 12px ${FM}`, color: BRASS, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-                ← use a different email
+                ← back to sign in
               </button>
             </>
-          ) : (
+          ) : mode === "password" ? (
             <>
               <h1 style={{ font: `800 22px ${FD}`, margin: "0 0 6px" }}>Sign in</h1>
               <p style={{ font: `400 13px ${FD}`, color: DIM, lineHeight: 1.55, margin: "0 0 18px" }}>
-                Enter your email and we'll send you a one-tap sign-in link — no password to remember.
+                Enter your email and password.
               </p>
-              <input
-                type="email" value={email} placeholder="you@email.com"
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") send(); }}
-                style={{ width: "100%", boxSizing: "border-box", font: `400 15px ${FD}`, padding: "12px 14px",
-                  borderRadius: 10, background: BG, border: `1px solid ${status === "error" ? "#C7553F" : LINE}`, color: BONE, marginBottom: 12 }} />
-              <button onClick={send} disabled={status === "sending"} className="dc-focus"
+              <input type="email" value={email} placeholder="you@email.com" autoComplete="email"
+                onChange={(e) => setEmail(e.target.value)} style={field()} />
+              <input type="password" value={password} placeholder="Password" autoComplete="current-password"
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") signInPassword(); }} style={field()} />
+              <button onClick={signInPassword} disabled={status === "working"} className="dc-focus"
                 style={{ width: "100%", font: `700 14px ${FD}`, padding: "12px", borderRadius: 10, cursor: "pointer",
-                  border: "none", background: BRASS, color: BG, opacity: status === "sending" ? 0.6 : 1 }}>
-                {status === "sending" ? "Sending…" : "Send me a sign-in link"}
+                  border: "none", background: BRASS, color: BG, opacity: status === "working" ? 0.6 : 1 }}>
+                {status === "working" ? "Signing in…" : "Sign in"}
               </button>
-              {status === "error" && (
-                <p style={{ font: `400 12px ${FM}`, color: "#C7553F", margin: "10px 0 0" }}>{msg}</p>
-              )}
+              {status === "error" && <p style={{ font: `400 12px ${FM}`, color: "#C7553F", margin: "10px 0 0" }}>{msg}</p>}
+              <div style={{ textAlign: "center", marginTop: 16 }}>
+                <button onClick={() => { setMode("link"); setStatus("idle"); setMsg(""); }} className="dc-focus"
+                  style={{ font: `700 12px ${FM}`, color: STEEL, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                  email me a sign-in link instead
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <h1 style={{ font: `800 22px ${FD}`, margin: "0 0 6px" }}>Sign-in link</h1>
+              <p style={{ font: `400 13px ${FD}`, color: DIM, lineHeight: 1.55, margin: "0 0 18px" }}>
+                We'll email you a one-tap link — no password needed.
+              </p>
+              <input type="email" value={email} placeholder="you@email.com" autoComplete="email"
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") sendLink(); }} style={field()} />
+              <button onClick={sendLink} disabled={status === "working"} className="dc-focus"
+                style={{ width: "100%", font: `700 14px ${FD}`, padding: "12px", borderRadius: 10, cursor: "pointer",
+                  border: "none", background: BRASS, color: BG, opacity: status === "working" ? 0.6 : 1 }}>
+                {status === "working" ? "Sending…" : "Send me a sign-in link"}
+              </button>
+              {status === "error" && <p style={{ font: `400 12px ${FM}`, color: "#C7553F", margin: "10px 0 0" }}>{msg}</p>}
+              <div style={{ textAlign: "center", marginTop: 16 }}>
+                <button onClick={() => { setMode("password"); setStatus("idle"); setMsg(""); }} className="dc-focus"
+                  style={{ font: `700 12px ${FM}`, color: STEEL, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                  ← use email & password
+                </button>
+              </div>
             </>
           )}
         </div>
