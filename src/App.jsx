@@ -237,8 +237,59 @@ function useMetronome(bpm, beatsPerBar, opts = {}) {
 }
 
 /* ============================================================
-   Global styles (fonts, keyframes, base)
+   Drum synth — simple Web Audio drum sounds (no samples needed)
    ============================================================ */
+let _drumCtx = null;
+let _drumNoise = null;
+function drumCtx() {
+  if (!_drumCtx) _drumCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_drumCtx.state === "suspended") _drumCtx.resume();
+  return _drumCtx;
+}
+function drumNoise(ctx) {
+  if (_drumNoise) return _drumNoise;
+  const len = ctx.sampleRate;
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  _drumNoise = buf;
+  return buf;
+}
+function playDrum(padId, when, vel = 104) {
+  const ctx = drumCtx();
+  const t = when == null ? ctx.currentTime : when;
+  const g = Math.max(0.2, Math.min(1, vel / 110));
+  const env = (node, peak, dur) => {
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(peak * g, t + 0.002);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    node.connect(gain).connect(ctx.destination);
+  };
+  const noise = (peak, dur, hpFreq) => {
+    const n = ctx.createBufferSource(); n.buffer = drumNoise(ctx);
+    const hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = hpFreq;
+    n.connect(hp); env(hp, peak, dur); n.start(t); n.stop(t + dur + 0.02);
+  };
+  const tone = (type, f0, f1, peak, dur) => {
+    const o = ctx.createOscillator(); o.type = type;
+    o.frequency.setValueAtTime(f0, t);
+    if (f1 && f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t + dur * 0.8);
+    env(o, peak, dur); o.start(t); o.stop(t + dur + 0.02);
+  };
+  switch (padId) {
+    case "kick": tone("sine", 150, 48, 1.0, 0.2); break;
+    case "snare": noise(0.5, 0.18, 1400); tone("triangle", 180, 180, 0.28, 0.12); break;
+    case "hihat": noise(0.32, 0.05, 7000); break;
+    case "tom1": tone("sine", 240, 150, 0.8, 0.28); break;
+    case "tom2": tone("sine", 180, 110, 0.8, 0.3); break;
+    case "tom3": tone("sine", 120, 72, 0.85, 0.34); break;
+    case "crash": noise(0.4, 0.8, 5000); break;
+    case "ride": noise(0.22, 0.4, 6500); tone("square", 520, 520, 0.07, 0.3); break;
+    default: noise(0.4, 0.15, 2000);
+  }
+}
+
 function GlobalStyles() {
   return (
     <style>{`
@@ -1949,6 +2000,357 @@ function PracticeView({ midiStatus, onConnect, recentHits, hits, skills, simulat
 /* ============================================================
    VIEW: Progress
    ============================================================ */
+/* ============================================================
+   SEQUENCES — named grooves, call & response, full play-throughs
+   ============================================================ */
+const RB = { kick: [0, 4], snare: [2, 6], hihat: R(8) }; // basic rock beat lanes (subdiv 2)
+const lanesFrom = (obj) => Object.entries(obj).map(([pad, steps]) => ({ pad, steps }));
+
+const SEQUENCES = [
+  {
+    id: "money-beat", kind: "learn", title: "The Money Beat", subdiv: 2, bpm: 84,
+    blurb: "The most-recorded groove in history — the backbone of countless songs. Build it up one layer at a time.",
+    layers: [
+      { label: "1 · Kick & snare", lanes: lanesFrom({ kick: [0, 4], snare: [2, 6] }) },
+      { label: "2 · Add hi-hat", lanes: lanesFrom({ hihat: R(8), kick: [0, 4], snare: [2, 6] }) },
+    ],
+  },
+  {
+    id: "tom-fill-learn", kind: "learn", title: "Descending Tom Fill", subdiv: 4, bpm: 80,
+    blurb: "A classic tumble down the toms. Learn the hands first, then the full run.",
+    layers: [
+      { label: "1 · Snare & high tom", lanes: lanesFrom({ snare: [0, 1, 2, 3], tom1: [4, 5, 6, 7] }) },
+      { label: "2 · Add the low toms", lanes: lanesFrom({ snare: [0, 1, 2, 3], tom1: [4, 5, 6, 7], tom2: [8, 9, 10, 11], tom3: [12, 13, 14, 15] }) },
+    ],
+  },
+  {
+    id: "echo-basics", kind: "echo", title: "Call & Response — Basics", subdiv: 2, bpm: 80,
+    blurb: "Listen to each phrase, then echo it back. Trains your ear and your hands together.",
+    phrases: [
+      { label: "Quarters on the snare", lanes: lanesFrom({ snare: [0, 2, 4, 6] }) },
+      { label: "Kick & snare trade", lanes: lanesFrom({ kick: [0, 4], snare: [2, 6] }) },
+      { label: "Snare around the toms", lanes: lanesFrom({ snare: [0], tom1: [2], tom2: [4], tom3: [6] }) },
+    ],
+  },
+  {
+    id: "rock-tune", kind: "play", title: "8-Bar Rock Tune", subdiv: 2, bpm: 88,
+    blurb: "Play a whole little piece start to finish: groove, a fill, more groove, and a crash to land.",
+    bars: [
+      lanesFrom(RB), lanesFrom(RB), lanesFrom(RB),
+      lanesFrom({ snare: [0, 1], tom1: [2, 3], tom2: [4, 5], tom3: [6, 7], kick: [0] }), // bar 4: fill
+      lanesFrom(RB), lanesFrom(RB), lanesFrom(RB),
+      lanesFrom({ crash: [0], kick: [0, 4], snare: [2, 6], hihat: [1, 2, 3, 4, 5, 6, 7] }), // bar 8: land
+    ],
+  },
+];
+
+// schedule an arrangement's hits as audible drums via the synth, starting now
+function playArrangementAudio(bars, subdiv, bpm) {
+  const ctx = drumCtx();
+  const start = ctx.currentTime + 0.12;
+  const beatDur = 60 / bpm;
+  bars.forEach((lanes, bi) => {
+    lanes.forEach((lane) => {
+      lane.steps.forEach((step) => {
+        const beatInBar = Math.floor(step / subdiv);
+        const k = step % subdiv;
+        const t = start + (bi * 4 + beatInBar) * beatDur + (k * beatDur) / subdiv;
+        playDrum(lane.pad, t, 104);
+      });
+    });
+  });
+  return (bars.length * 4 * beatDur + 0.3) * 1000; // ms duration
+}
+
+function SeqGrid({ lanes, subdiv, active }) {
+  const spb = subdiv * 4;
+  const pads = lanes.map((l) => l.pad);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4, margin: "6px 0 12px" }}>
+      {lanes.map((lane) => (
+        <div key={lane.pad} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ width: 50, font: `700 9px ${FONT_MONO}`, color: T.boneDim, textAlign: "right" }}>{LABELS[lane.pad]}</span>
+          <div style={{ display: "flex", gap: 3, flex: 1 }}>
+            {R(spb).map((s) => {
+              const on = lane.steps.includes(s);
+              const isActive = active === s;
+              return <div key={s} style={{ flex: 1, height: 16, borderRadius: 3,
+                background: on ? (isActive ? T.brassHi : T.brass) : (isActive ? T.bgCardHi : T.bgRaise),
+                borderLeft: s % subdiv === 0 ? `2px solid ${T.lineHi}` : `1px solid ${T.line}` }} />;
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Scored runner over a multi-bar arrangement (used by Learn layers and Play-through)
+function SequenceRunner({ bars, subdiv, bpm, label, subscribeHits, midiStatus, onConnect, logSkill, onDone }) {
+  const [phase, setPhase] = useState("idle"); // idle | countin | recording | results
+  const [bar, setBar] = useState(0);
+  const [lastError, setLastError] = useState(null);
+  const [result, setResult] = useState(null);
+  const COUNTIN = 4;
+  const totalBeats = bars.length * 4;
+
+  const beatCountRef = useRef(0);
+  const expRef = useRef([]);
+  const errRef = useRef([]);
+  const coveredRef = useRef(new Set());
+  const demoRef = useRef(false);
+  const finishedRef = useRef(false);
+  const phaseRef = useRef("idle"); phaseRef.current = phase;
+  const bpmRef = useRef(bpm); bpmRef.current = bpm;
+  const mountedRef = useRef(true);
+
+  const recordHit = useCallback((h) => {
+    if (phaseRef.current !== "recording") return;
+    const pad = NOTE_TO_PAD[h.note]; if (!pad) return;
+    const exp = expRef.current;
+    let best = Infinity, bi = -1;
+    for (let i = 0; i < exp.length; i++) { if (exp[i].pad !== pad) continue; const d = h.t - exp[i].t; if (Math.abs(d) < Math.abs(best)) { best = d; bi = i; } }
+    if (bi === -1) return;
+    const tol = Math.max(90, (60000 / bpmRef.current / subdiv) * 0.5);
+    if (Math.abs(best) <= tol) { errRef.current.push(best); coveredRef.current.add(bi); setLastError(Math.round(best)); }
+  }, [subdiv]);
+
+  useEffect(() => { if (!subscribeHits) return; return subscribeHits(recordHit); }, [subscribeHits, recordHit]);
+  useEffect(() => () => { mountedRef.current = false; metroRef.current?.stop(); }, []);
+
+  const finish = useCallback(() => {
+    metroRef.current?.stop();
+    if (!mountedRef.current) return;
+    const errs = errRef.current;
+    const total = expRef.current.length;
+    const timing = errs.length >= 3 ? Math.round(errs.reduce((a, b) => a + Math.abs(b), 0) / errs.length) : 999;
+    const density = total ? Math.round((coveredRef.current.size / total) * 100) : 0;
+    const pass = errs.length >= 3 && timing <= 60 && density >= 75;
+    setResult({ timing, density, pass, hits: errs.length });
+    setPhase("results");
+    logSkill?.({ kind: "Sequence", detail: `${label} · ${density}% · ±${timing}ms` });
+  }, [label, logSkill]);
+
+  const onBeat = useCallback(({ perfTime }) => {
+    const n = beatCountRef.current; beatCountRef.current += 1;
+    if (n < COUNTIN) { setPhase("countin"); return; }
+    setPhase("recording");
+    const recBeat = n - COUNTIN;
+    const barIndex = Math.floor(recBeat / 4);
+    if (barIndex >= bars.length) return;
+    setBar(barIndex + 1);
+    const lanes = bars[barIndex];
+    const interval = 60000 / bpmRef.current;
+    const beatInBar = recBeat % 4;
+    for (let k = 0; k < subdiv; k++) {
+      const step = beatInBar * subdiv + k;
+      const t = perfTime + (k * interval) / subdiv;
+      lanes.forEach((lane) => {
+        if (!lane.steps.includes(step)) return;
+        expRef.current.push({ pad: lane.pad, t });
+        if (demoRef.current) {
+          const jitter = (Math.random() - 0.5) * 36;
+          setTimeout(() => recordHit({ note: (PADMAP[lane.pad].notes || [38])[0], velocity: 96, t: performance.now() }), Math.max(0, t + jitter - performance.now()));
+          playDrum(lane.pad, drumCtx().currentTime + Math.max(0, (t - performance.now()) / 1000), 100);
+        }
+      });
+    }
+    if (recBeat + 1 >= totalBeats && !finishedRef.current) { finishedRef.current = true; setTimeout(finish, 320); }
+  }, [bars, subdiv, recordHit, finish, totalBeats]);
+
+  const metro = useMetronome(bpm, 4, { onBeat, subdivision: subdiv });
+  const metroRef = useRef(null); metroRef.current = metro;
+  useEffect(() => { if (phase === "results" || phase === "idle") metro.stop(); /* eslint-disable-next-line */ }, [phase]);
+
+  const start = (demo) => {
+    beatCountRef.current = 0; expRef.current = []; errRef.current = []; coveredRef.current = new Set();
+    finishedRef.current = false; demoRef.current = !!demo;
+    setResult(null); setLastError(null); setBar(0); setPhase("countin"); metro.start();
+  };
+  const cancel = () => { metro.stop(); finishedRef.current = true; setPhase("idle"); };
+  const connected = midiStatus === "connected";
+  const running = phase === "countin" || phase === "recording";
+
+  return (
+    <div>
+      {phase === "idle" && (
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <Btn onClick={() => start(false)}>▶ Play it</Btn>
+          <Btn variant="line" onClick={() => start(true)}>Demo (hear it)</Btn>
+          {!connected && <span style={{ font: `400 11px ${FONT_MONO}`, color: T.steel, alignSelf: "center" }}>no kit — Demo plays it for you</span>}
+        </div>
+      )}
+      {running && (
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <span style={{ font: `700 12px ${FONT_MONO}`, color: phase === "countin" ? T.warn : T.strike }}>
+              {phase === "countin" ? "COUNT IN…" : `BAR ${bar}/${bars.length}`}
+            </span>
+            <button onClick={cancel} className="dc-focus" style={{ font: `700 11px ${FONT_MONO}`, color: T.boneDim, background: "none", border: `1px solid ${T.line}`, borderRadius: 7, padding: "4px 10px", cursor: "pointer" }}>Stop</button>
+          </div>
+          <div style={{ display: "flex", justifyContent: "center", gap: 10, marginBottom: 12 }}>
+            {[0, 1, 2, 3].map((b) => <span key={b} style={{ width: 13, height: 13, borderRadius: 999, background: metro.beat === b ? (b === 0 ? T.brassHi : T.strike) : T.line }} />)}
+          </div>
+          <TimingMeter lastError={lastError} />
+        </div>
+      )}
+      {phase === "results" && result && (
+        <div className="dc-rise">
+          <div style={{ display: "flex", gap: 20, marginBottom: 12 }}>
+            <Stat label="Timing" value={`±${result.timing}ms`} ok={result.timing <= 60} />
+            <Stat label="Notes hit" value={`${result.density}%`} ok={result.density >= 75} />
+          </div>
+          <div style={{ padding: 11, borderRadius: 9, marginBottom: 12, background: result.pass ? "rgba(127,176,105,0.12)" : T.bgRaise, border: `1px solid ${result.pass ? T.good : T.line}` }}>
+            <span style={{ font: `${result.pass ? 700 : 400} 13px ${FONT_DISPLAY}`, color: result.pass ? T.good : T.boneDim }}>
+              {result.pass ? "Nailed it — that's the sequence." : "Getting there — hit Demo to hear it, then try again."}
+            </span>
+          </div>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <Btn variant="line" onClick={() => start(demoRef.current)}>Try again</Btn>
+            {onDone && <Btn onClick={onDone}>Done →</Btn>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Call & response: app plays a phrase audibly, then you echo it (scored)
+function EchoRunner({ phrase, subdiv, bpm, subscribeHits, midiStatus, onConnect, logSkill }) {
+  const [phase, setPhase] = useState("idle"); // idle | listen | your-turn | results
+  const [lastError, setLastError] = useState(null);
+  const [result, setResult] = useState(null);
+  const bars = [phrase.lanes];
+
+  const listen = () => {
+    setPhase("listen"); setResult(null);
+    const ms = playArrangementAudio(bars, subdiv, bpm);
+    setTimeout(() => { if (phaseRef.current === "listen") setPhase("your-turn-pending"); }, ms);
+  };
+  const phaseRef = useRef("idle"); phaseRef.current = phase;
+
+  return (
+    <div>
+      {(phase === "idle" || phase === "listen") && (
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+          <Btn onClick={listen}>{phase === "listen" ? "♪ Listening…" : "▶ Listen"}</Btn>
+          <span style={{ font: `400 11px ${FONT_MONO}`, color: T.steel }}>hear the phrase, then echo it</span>
+        </div>
+      )}
+      {(phase === "your-turn-pending" || phase === "your-turn" || phase === "results") && (
+        <EchoEcho phrase={phrase} subdiv={subdiv} bpm={bpm} subscribeHits={subscribeHits}
+          midiStatus={midiStatus} onConnect={onConnect} logSkill={logSkill}
+          onAgain={() => setPhase("idle")} />
+      )}
+    </div>
+  );
+}
+
+// the scored "your turn" half of echo — reuses SequenceRunner on the single phrase bar
+function EchoEcho({ phrase, subdiv, bpm, subscribeHits, midiStatus, onConnect, logSkill, onAgain }) {
+  return (
+    <div>
+      <div style={{ font: `700 12px ${FONT_MONO}`, color: T.brass, marginBottom: 8 }}>YOUR TURN — echo it back</div>
+      <SequenceRunner bars={[phrase.lanes]} subdiv={subdiv} bpm={bpm} label={`Echo: ${phrase.label}`}
+        subscribeHits={subscribeHits} midiStatus={midiStatus} onConnect={onConnect} logSkill={logSkill}
+        onDone={onAgain} />
+      <button onClick={onAgain} className="dc-focus" style={{ marginTop: 10, font: `700 11px ${FONT_MONO}`, color: T.boneDim, background: "none", border: "none", cursor: "pointer", padding: 0 }}>← listen again</button>
+    </div>
+  );
+}
+
+function SequencesView({ subscribeHits, midiStatus, onConnect, logSkill }) {
+  const [openId, setOpenId] = useState(null);
+  const [layerIdx, setLayerIdx] = useState(0);
+  const [phraseIdx, setPhraseIdx] = useState(0);
+  const open = SEQUENCES.find((s) => s.id === openId);
+
+  const kindBadge = (k) => k === "learn" ? { t: "LEARN", c: T.good } : k === "echo" ? { t: "ECHO", c: T.brass } : { t: "PLAY-THROUGH", c: T.strike };
+
+  if (open) {
+    return (
+      <div className="dc-rise">
+        <button onClick={() => { setOpenId(null); setLayerIdx(0); setPhraseIdx(0); }} className="dc-focus"
+          style={{ font: `700 12px ${FONT_MONO}`, color: T.brass, background: "none", border: "none", cursor: "pointer", padding: 0, marginBottom: 16 }}>← All sequences</button>
+        <Eyebrow>{kindBadge(open.kind).t}</Eyebrow>
+        <h1 style={{ font: `800 28px ${FONT_DISPLAY}`, color: T.bone, margin: "10px 0 8px" }}>{open.title}</h1>
+        <p style={{ font: `400 14px ${FONT_DISPLAY}`, color: T.boneDim, lineHeight: 1.55, margin: "0 0 18px" }}>{open.blurb}</p>
+
+        {open.kind === "learn" && (
+          <Card>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+              {open.layers.map((ly, i) => (
+                <button key={i} onClick={() => setLayerIdx(i)} className="dc-focus"
+                  style={{ font: `700 12px ${FONT_DISPLAY}`, padding: "7px 12px", borderRadius: 8, cursor: "pointer",
+                    background: layerIdx === i ? T.brass : "transparent", color: layerIdx === i ? T.bg : T.boneDim, border: `1px solid ${layerIdx === i ? T.brass : T.line}` }}>{ly.label}</button>
+              ))}
+            </div>
+            <SeqGrid lanes={open.layers[layerIdx].lanes} subdiv={open.subdiv} />
+            <SequenceRunner key={open.id + layerIdx} bars={[open.layers[layerIdx].lanes]} subdiv={open.subdiv} bpm={open.bpm}
+              label={`${open.title} · ${open.layers[layerIdx].label}`} subscribeHits={subscribeHits} midiStatus={midiStatus} onConnect={onConnect} logSkill={logSkill} />
+          </Card>
+        )}
+
+        {open.kind === "echo" && (
+          <Card>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+              {open.phrases.map((p, i) => (
+                <button key={i} onClick={() => setPhraseIdx(i)} className="dc-focus"
+                  style={{ font: `700 12px ${FONT_DISPLAY}`, padding: "7px 12px", borderRadius: 8, cursor: "pointer",
+                    background: phraseIdx === i ? T.brass : "transparent", color: phraseIdx === i ? T.bg : T.boneDim, border: `1px solid ${phraseIdx === i ? T.brass : T.line}` }}>{i + 1}</button>
+              ))}
+            </div>
+            <div style={{ font: `700 13px ${FONT_DISPLAY}`, color: T.bone, marginBottom: 6 }}>{open.phrases[phraseIdx].label}</div>
+            <SeqGrid lanes={open.phrases[phraseIdx].lanes} subdiv={open.subdiv} />
+            <EchoRunner key={open.id + phraseIdx} phrase={open.phrases[phraseIdx]} subdiv={open.subdiv} bpm={open.bpm}
+              subscribeHits={subscribeHits} midiStatus={midiStatus} onConnect={onConnect} logSkill={logSkill} />
+          </Card>
+        )}
+
+        {open.kind === "play" && (
+          <Card>
+            <div style={{ font: `700 11px ${FONT_MONO}`, color: T.steel, marginBottom: 10 }}>{open.bars.length} BARS · {open.bpm} BPM</div>
+            {open.bars.map((lanes, i) => (
+              <div key={i} style={{ marginBottom: 6 }}>
+                <span style={{ font: `400 9px ${FONT_MONO}`, color: T.steel }}>BAR {i + 1}{i === 3 ? " · FILL" : i === 7 ? " · LAND" : ""}</span>
+                <SeqGrid lanes={lanes} subdiv={open.subdiv} />
+              </div>
+            ))}
+            <SequenceRunner key={open.id} bars={open.bars} subdiv={open.subdiv} bpm={open.bpm}
+              label={open.title} subscribeHits={subscribeHits} midiStatus={midiStatus} onConnect={onConnect} logSkill={logSkill} />
+          </Card>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="dc-rise">
+      <Eyebrow>Play real music</Eyebrow>
+      <h1 style={{ font: `800 28px ${FONT_DISPLAY}`, color: T.bone, margin: "10px 0 6px" }}>Sequences</h1>
+      <p style={{ font: `400 14px ${FONT_DISPLAY}`, color: T.boneDim, lineHeight: 1.55, margin: "0 0 20px" }}>
+        Beyond drills — learn named grooves and fills step by step, echo phrases back by ear, and play whole short
+        pieces start to finish. Tap Demo on any of them to hear it first (no kit needed).
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {SEQUENCES.map((s) => {
+          const b = kindBadge(s.kind);
+          return (
+            <button key={s.id} onClick={() => { setOpenId(s.id); setLayerIdx(0); setPhraseIdx(0); }} className="dc-focus"
+              style={{ textAlign: "left", background: T.bgCard, border: `1px solid ${T.line}`, borderRadius: 12, padding: 16, cursor: "pointer" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+                <span style={{ font: `800 16px ${FONT_DISPLAY}`, color: T.bone, flex: 1 }}>{s.title}</span>
+                <span style={{ font: `700 9px ${FONT_MONO}`, color: b.c, letterSpacing: "0.08em" }}>{b.t}</span>
+              </div>
+              <span style={{ font: `400 12px ${FONT_DISPLAY}`, color: T.boneDim, lineHeight: 1.5 }}>{s.blurb}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function SongsView({ subscribeHits, midiStatus, onConnect }) {
   const [tracks, setTracks] = useState(() => loadStore().tracks || []);
   const [defaults, setDefaults] = useState([]);
@@ -2304,6 +2706,7 @@ export default function App({ userEmail, userName, onSignOut } = {}) {
     { id: "kit", label: "Kit" },
     { id: "lessons", label: "Lessons" },
     { id: "practice", label: "Practice" },
+    { id: "sequences", label: "Sequences" },
     { id: "songs", label: "Songs" },
     { id: "progress", label: "Progress" },
   ];
@@ -2387,6 +2790,9 @@ export default function App({ userEmail, userName, onSignOut } = {}) {
           <PracticeView midiStatus={status} onConnect={connect} recentHits={recentHits}
             hits={hits} skills={skills} simulate={simulate}
             subscribeHits={subscribeHits} logSkill={logSkill} />
+        )}
+        {view === "sequences" && (
+          <SequencesView subscribeHits={subscribeHits} midiStatus={status} onConnect={connect} logSkill={logSkill} />
         )}
         {view === "songs" && (
           <SongsView subscribeHits={subscribeHits} midiStatus={status} onConnect={connect} />
