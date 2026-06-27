@@ -1,5 +1,25 @@
 [
   {
+    "title": "94 BPM Standard Drum Loop",
+    "artist": "Pixabay",
+    "file": "53943091-94-bpm-standard-drum-loop-460076.mp3",
+    "license": "pixabay",
+    "bpm": 94,
+    "difficulty": "Beginner",
+    "fits": "Has drums · copy the groove (Stage 3-5)",
+    "pixabayUrl": "https://pixabay.com/music/search/standard%20drum%20loop/"
+  },
+  {
+    "title": "Jazz Drums Solo",
+    "artist": "alban_gogh",
+    "file": "alban_gogh-jazz-drums-solo-120-bpm-204483.mp3",
+    "license": "pixabay",
+    "bpm": 120,
+    "difficulty": "Intermediate",
+    "fits": "Has drums · listen & feel (Stage 8)",
+    "pixabayUrl": "https://pixabay.com/music/search/jazz%20drums%20solo/"
+  },
+  {
     "title": "Heart Cry Moment (Drumless)",
     "artist": "Preshkeyzmusic",
     "file": "heart-cry-drumless.mp3",
@@ -16,7 +36,7 @@
     "license": "pixabay",
     "bpm": 95,
     "difficulty": "Beginner",
-    "fits": "Has drums · lock in with the kit (Stage 3–4)",
+    "fits": "Has drums · lock in with the kit (Stage 3-4)",
     "pixabayUrl": "https://pixabay.com/music/search/electric%20bass%20and%20drum%20performance/"
   },
   {
@@ -48,25 +68,5 @@
     "difficulty": "Intermediate",
     "fits": "Has drums · driving rock (Stage 5)",
     "pixabayUrl": "https://pixabay.com/music/search/full%20of%20mind/"
-  },
-  {
-    "title": "Funky Jam",
-    "artist": "Alban_Gogh",
-    "file": "funky-jam.mp3",
-    "license": "pixabay",
-    "bpm": null,
-    "difficulty": "Intermediate",
-    "fits": "Funk feel · later stages (Stage 8)",
-    "pixabayUrl": "https://pixabay.com/music/search/funky%20jam/"
-  },
-  {
-    "title": "Funk Rock",
-    "artist": "ceton",
-    "file": "funk-rock-135.mp3",
-    "license": "pixabay",
-    "bpm": 135,
-    "difficulty": "Advanced",
-    "fits": "Funk-rock · faster, for later (Stage 8)",
-    "pixabayUrl": "https://pixabay.com/music/search/funk%20rock%20135/"
   }
 ]
