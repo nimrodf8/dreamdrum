@@ -2209,8 +2209,9 @@ const LS_KEY = "dreamdrum:v1";
 const loadStore = () => { try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch { return {}; } };
 const saveStore = (patch) => { try { localStorage.setItem(LS_KEY, JSON.stringify({ ...loadStore(), ...patch })); } catch {} };
 
-export default function App() {
+export default function App({ userEmail, userName, onSignOut } = {}) {
   const persisted = loadStore();
+  const displayName = userName || (userEmail ? userEmail.split("@")[0] : "");
   const defaultLayout = () => {
     const angled = {}, top = {};
     PADS.forEach((p) => (angled[p.id] = { x: p.x, y: p.y }));
@@ -2350,6 +2351,21 @@ export default function App() {
             ))}
           </nav>
           <ConnChip status={status} deviceName={deviceName} onConnect={connect} />
+          {onSignOut && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {displayName && (
+                <span style={{ font: `700 11px ${FONT_MONO}`, color: T.boneDim, maxWidth: 140,
+                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={userEmail || ""}>
+                  {displayName}
+                </span>
+              )}
+              <button onClick={onSignOut} className="dc-focus" title="Sign out"
+                style={{ font: `700 11px ${FONT_MONO}`, color: T.boneDim, background: "none",
+                  border: `1px solid ${T.line}`, borderRadius: 7, padding: "6px 10px", cursor: "pointer", whiteSpace: "nowrap" }}>
+                Sign out
+              </button>
+            </div>
+          )}
         </div>
       </header>
 

@@ -148,5 +148,8 @@ export default function AuthGate() {
   if (session === undefined) return <Loading />;
   if (!session) return <SignIn />;
 
-  return <App userEmail={session.user?.email} onSignOut={() => supabase.auth.signOut()} />;
+  return <App
+    userEmail={session.user?.email}
+    userName={session.user?.user_metadata?.full_name || session.user?.user_metadata?.name}
+    onSignOut={() => supabase.auth.signOut()} />;
 }
