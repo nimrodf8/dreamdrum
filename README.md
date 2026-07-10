@@ -60,7 +60,7 @@ Set the kids passcode with an env var (locally in `.env`, and in Netlify → Env
 VITE_KIDS_PASSCODE=your-code-here
 ```
 
-If unset, the code defaults to **`blastoff`**. Change it before sharing the link.
+If unset, the code defaults to **`nyk`**. Change it before sharing the link.
 
 ## Cross-device sync (Supabase) — optional, off by default
 

@@ -8,7 +8,7 @@ import React, { useState } from "react";
    Note: this is a client-side gate — good for keeping the kids
    area to your family/students, not a security boundary.
    ============================================================ */
-const CODE = String(import.meta.env.VITE_KIDS_PASSCODE || "blastoff").trim().toLowerCase();
+const CODE = String(import.meta.env.VITE_KIDS_PASSCODE || "nyk").trim().toLowerCase();
 const KEY = "dreamdrum:kids:unlocked";
 const FONT = "'Fredoka', system-ui, -apple-system, sans-serif";
 const remembered = () => { try { return localStorage.getItem(KEY) === "1"; } catch { return false; } };
