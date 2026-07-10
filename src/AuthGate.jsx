@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import App from "./App.jsx";
 import { supabase, isConfigured } from "./supabaseClient.js";
+import { pullForUser } from "./cloudSync.js";
 
 const BG = "#15120E";
 const CARD = "#1E1A15";
@@ -124,13 +125,32 @@ function SignIn() {
   );
 }
 
-function Loading() {
+function Loading({ label = "Loading…" }) {
   return (
     <div style={{ minHeight: "100vh", background: BG, color: STEEL, fontFamily: FM,
       display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <span style={{ font: `400 13px ${FM}` }}>Loading…</span>
+      <span style={{ font: `400 13px ${FM}` }}>{label}</span>
     </div>
   );
+}
+
+/* Pulls the signed-in user's saved progress from Supabase, then
+   renders the app so it initialises from the freshly-synced state.
+   Remounted per user (keyed by id) so switching accounts re-syncs. */
+function SyncedApp({ user, onSignOut, onKidsMode }) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    pullForUser(user).catch(() => {}).finally(() => { if (alive) setReady(true); });
+    return () => { alive = false; };
+  }, [user]);
+
+  if (!ready) return <Loading label="Loading your progress…" />;
+  return <App
+    userEmail={user?.email}
+    userName={user?.user_metadata?.full_name || user?.user_metadata?.name}
+    onSignOut={onSignOut}
+    onKidsMode={onKidsMode} />;
 }
 
 export default function AuthGate({ onKidsMode } = {}) {
@@ -148,9 +168,9 @@ export default function AuthGate({ onKidsMode } = {}) {
   if (session === undefined) return <Loading />;
   if (!session) return <SignIn />;
 
-  return <App
-    userEmail={session.user?.email}
-    userName={session.user?.user_metadata?.full_name || session.user?.user_metadata?.name}
+  return <SyncedApp
+    key={session.user?.id}
+    user={session.user}
     onSignOut={() => supabase.auth.signOut()}
     onKidsMode={onKidsMode} />;
 }

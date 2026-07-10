@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { PADS, NOTE_TO_PAD, PADMAP, useMidi, useMetronome, drumCtx, playDrum } from "./drumEngine.js";
+import { schedulePush as cloudSchedulePush } from "./cloudSync.js";
 
 /* ============================================================
    DREAMDRUM — Phase 1 MVP
@@ -2356,7 +2357,10 @@ function ProgressView({ progress, hits, sessions, skillLog = [], onReset }) {
    ============================================================ */
 const LS_KEY = "dreamdrum:v1";
 const loadStore = () => { try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch { return {}; } };
-const saveStore = (patch) => { try { localStorage.setItem(LS_KEY, JSON.stringify({ ...loadStore(), ...patch })); } catch {} };
+const saveStore = (patch) => {
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ ...loadStore(), ...patch })); } catch {}
+  cloudSchedulePush(); // debounced per-user sync to Supabase (no-op when not configured)
+};
 
 export default function App({ userEmail, userName, onSignOut, onKidsMode } = {}) {
   const persisted = loadStore();
