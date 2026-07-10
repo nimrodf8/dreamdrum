@@ -2,8 +2,17 @@
 
 A from-scratch drumming course built around the Roland TD-313. React + Vite, ready for Netlify.
 
+Two experiences, one shared engine:
+- **Grown-up course** — the full DreamDrum after-dark course (default route).
+- **🚀 Space Cadets** — a kid-friendly cosmic adventure for ages **6–9**, at the `#kids` route. Big buttons, tiny words, a friendly guide (Cosmo), read-aloud, stars/badges/confetti, planet-map missions, practice games and jam-along. It talks to the same real TD-313 over Web MIDI, and kids with no kit can tap the big on-screen drums instead.
+
+Switch between them with the **🚀 Kids** button in the grown-up header, the **Grown-ups** button in the kids header, or by visiting `#kids` directly.
+
 ## What's here
-- `src/App.jsx` — the whole app (kit views, lessons, live drills, skill builders, progress)
+- `src/drumEngine.js` — shared kit model, Web MIDI hook, metronome, and drum synth (used by both apps)
+- `src/App.jsx` — the grown-up course (kit views, lessons, live drills, skill builders, progress)
+- `src/KidsApp.jsx` — the Space Cadets kids experience
+- `src/Root.jsx` — tiny hash router that picks the app (`#kids` → kids)
 - `src/main.jsx` — React entry point
 - `index.html`, `vite.config.js` — Vite setup
 - `netlify.toml` — Netlify build config

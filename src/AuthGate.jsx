@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import App from "./App.jsx";
+import Root from "./Root.jsx";
 import { supabase, isConfigured } from "./supabaseClient.js";
 
 const BG = "#15120E";
@@ -144,11 +144,11 @@ export default function AuthGate() {
   }, []);
 
   // If auth isn't configured (no env vars), run the app open — protects only once keys are set.
-  if (!isConfigured()) return <App />;
+  if (!isConfigured()) return <Root />;
   if (session === undefined) return <Loading />;
   if (!session) return <SignIn />;
 
-  return <App
+  return <Root
     userEmail={session.user?.email}
     userName={session.user?.user_metadata?.full_name || session.user?.user_metadata?.name}
     onSignOut={() => supabase.auth.signOut()} />;
