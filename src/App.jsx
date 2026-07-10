@@ -1730,10 +1730,14 @@ function PracticeView({ midiStatus, onConnect, recentHits, hits, skills, simulat
                 Plug the TD-313 into this device with USB-C. The app reads the kit's MIDI directly — it knows
                 exactly which pad you hit, how hard, and when. No microphone, no guessing.
               </p>
+              <p style={{ font: `400 13px ${FONT_DISPLAY}`, color: T.steel, lineHeight: 1.5, margin: "0 0 16px" }}>
+                💻 On a computer, use Chrome or Edge. 📱 On an iPad, use Safari (iPadOS 16.4+) with a USB-C or
+                Lightning camera adapter, tap Connect, then tap “Allow.”
+              </p>
               <Btn variant="line" onClick={simulate}>Try a simulated hit</Btn>
               {midiStatus === "unsupported" && (
                 <p style={{ font: `400 12px ${FONT_MONO}`, color: T.steel, marginTop: 14 }}>
-                  This preview can't open MIDI. It'll work once deployed and opened in Chrome/Edge.
+                  This browser can't open MIDI. Use Chrome/Edge on a computer, or Safari on iPadOS 16.4+.
                 </p>
               )}
             </div>

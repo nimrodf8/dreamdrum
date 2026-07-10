@@ -334,6 +334,15 @@ function KidCard({ children, style, color = C.line }) {
     </div>
   );
 }
+// Friendly setup hint for grown-ups helping with an iPad
+function IpadTip() {
+  return (
+    <p style={{ font: `500 13px/1.5 ${FONT}`, color: C.dim, margin: "10px auto 0", maxWidth: 340 }}>
+      📱 On an iPad? Plug the drums in, open this in <strong style={{ color: C.ink }}>Safari</strong>, tap Connect,
+      then tap <strong style={{ color: C.ink }}>Allow</strong>. (Needs iPad software 16.4 or newer.)
+    </p>
+  );
+}
 function StarRow({ n, size = 34 }) {
   return (
     <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
@@ -390,7 +399,7 @@ function DrumsScreen({ hitPad, tap, soundOn, midiStatus, onConnect }) {
       <div style={{ marginTop: 16, textAlign: "center" }}>
         {midiStatus === "connected"
           ? <span style={{ font: `600 15px ${FONT}`, color: C.green }}>🎧 Your kit is connected — go on, hit a drum!</span>
-          : <GhostBtn onClick={onConnect} color={C.cyan}>🔌 Connect my drum kit</GhostBtn>}
+          : <><GhostBtn onClick={onConnect} color={C.cyan}>🔌 Connect my drum kit</GhostBtn><IpadTip /></>}
       </div>
     </div>
   );
@@ -731,6 +740,7 @@ function JamScreen({ tap, hitPad, midiStatus, onConnect, soundOn }) {
       {midiStatus !== "connected" && (
         <div style={{ textAlign: "center", marginTop: 16 }}>
           <GhostBtn onClick={onConnect} color={C.cyan}>🔌 Connect my drum kit</GhostBtn>
+          <IpadTip />
         </div>
       )}
     </div>
@@ -882,6 +892,7 @@ function PlayRoom({ tap, subscribeHits, midiStatus, onConnect, soundOn, awardSta
       {midiStatus !== "connected" && game !== "free" && (
         <div style={{ textAlign: "center", marginTop: 16 }}>
           <GhostBtn onClick={onConnect} color={C.cyan}>🔌 Connect my drum kit</GhostBtn>
+          <IpadTip />
         </div>
       )}
     </div>
