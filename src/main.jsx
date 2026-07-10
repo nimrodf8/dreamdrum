@@ -1,5 +1,5 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import AuthGate from "./AuthGate.jsx";
+import Root from "./Root.jsx";
 
-createRoot(document.getElementById("root")).render(<AuthGate />);
+createRoot(document.getElementById("root")).render(<Root />);

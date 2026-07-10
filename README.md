@@ -47,6 +47,21 @@ npm run preview  # preview the built site locally
 - **Saving:** progress, skill log, kit layout, and songs save to the browser's localStorage automatically. "Reset all data" lives on the Progress screen.
 - Audio/licensing for the song feature: Pixabay (default, no attribution) and CC-BY tracks with on-screen credit only.
 
+## Logins — two separate gates
+
+The two experiences are gated independently:
+
+- **Grown-up course** — real email + password accounts via Supabase (with magic-link as a backup). This turns on only once you set the two Supabase env vars below; until then the main app runs open. See the sync section for setup.
+- **🚀 Space Cadets (kids)** — a simple passcode screen (`src/KidsGate.jsx`). A grown-up enters the code once on the device and the kid goes straight in afterward (remembered in `localStorage`). This is a family/classroom gate, not a security boundary.
+
+Set the kids passcode with an env var (locally in `.env`, and in Netlify → Environment variables):
+
+```
+VITE_KIDS_PASSCODE=your-code-here
+```
+
+If unset, the code defaults to **`blastoff`**. Change it before sharing the link.
+
 ## Cross-device sync (Supabase) — optional, off by default
 
 The app runs fully on localStorage. To sync progress between your iPad and computer, enable Supabase:

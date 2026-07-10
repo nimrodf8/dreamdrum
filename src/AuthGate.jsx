@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Root from "./Root.jsx";
+import App from "./App.jsx";
 import { supabase, isConfigured } from "./supabaseClient.js";
 
 const BG = "#15120E";
@@ -133,7 +133,7 @@ function Loading() {
   );
 }
 
-export default function AuthGate() {
+export default function AuthGate({ onKidsMode } = {}) {
   const [session, setSession] = useState(undefined); // undefined = checking
 
   useEffect(() => {
@@ -144,12 +144,13 @@ export default function AuthGate() {
   }, []);
 
   // If auth isn't configured (no env vars), run the app open — protects only once keys are set.
-  if (!isConfigured()) return <Root />;
+  if (!isConfigured()) return <App onKidsMode={onKidsMode} />;
   if (session === undefined) return <Loading />;
   if (!session) return <SignIn />;
 
-  return <Root
+  return <App
     userEmail={session.user?.email}
     userName={session.user?.user_metadata?.full_name || session.user?.user_metadata?.name}
-    onSignOut={() => supabase.auth.signOut()} />;
+    onSignOut={() => supabase.auth.signOut()}
+    onKidsMode={onKidsMode} />;
 }
