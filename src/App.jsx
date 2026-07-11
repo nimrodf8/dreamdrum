@@ -670,6 +670,176 @@ function AssemblyView({ go }) {
 }
 
 /* ============================================================
+   VIEW: USB Cable Check — is the cord good enough?
+   ------------------------------------------------------------
+   A charge-only USB cable powers nothing here but carries no data,
+   so the kit never appears as a MIDI device. If the browser sees
+   the kit, the cable is good; a live pad-hit confirms data flows.
+   ============================================================ */
+function CableCheckView() {
+  // phase: idle | checking | error | nodevice | ready | pass
+  const [phase, setPhase] = useState("idle");
+  const [devices, setDevices] = useState([]);
+  const [lastHit, setLastHit] = useState(null);
+  const [hits, setHits] = useState(0);
+  const [errText, setErrText] = useState("");
+  const accessRef = useRef(null);
+  const hitCountRef = useRef(0);
+  const passRef = useRef(false);
+
+  const onMsg = useCallback((e) => {
+    const [raw, note, vel] = e.data;
+    if ((raw & 0xf0) === 0x90 && vel > 0) {
+      hitCountRef.current += 1;
+      setHits(hitCountRef.current);
+      const pad = PADS.find((p) => p.id === NOTE_TO_PAD[note]);
+      setLastHit({ name: pad ? pad.name : `Note ${note}`, vel });
+      passRef.current = true;
+      setPhase("pass");
+    }
+  }, []);
+
+  const enumerate = useCallback(() => {
+    const access = accessRef.current;
+    if (!access) return;
+    const inputs = Array.from(access.inputs.values());
+    setDevices(inputs.map((i) => i.name || "MIDI device"));
+    inputs.forEach((i) => (i.onmidimessage = onMsg));
+    if (passRef.current) return;
+    setPhase(inputs.length === 0 ? "nodevice" : "ready");
+  }, [onMsg]);
+
+  const detach = useCallback(() => {
+    const a = accessRef.current;
+    if (a) { a.onstatechange = null; Array.from(a.inputs.values()).forEach((i) => (i.onmidimessage = null)); }
+  }, []);
+
+  const start = useCallback(async () => {
+    detach();
+    setErrText(""); setHits(0); hitCountRef.current = 0; passRef.current = false; setLastHit(null); setDevices([]);
+    setPhase("checking");
+    if (!navigator.requestMIDIAccess) {
+      setPhase("error");
+      setErrText("This browser can't test USB-MIDI. Use Chrome or Edge on a computer, or Safari on iPadOS 16.4+.");
+      return;
+    }
+    try {
+      const access = await navigator.requestMIDIAccess({ sysex: false });
+      accessRef.current = access;
+      access.onstatechange = enumerate;
+      enumerate();
+    } catch {
+      setPhase("error");
+      setErrText("MIDI permission was blocked. Click the lock icon in the address bar → allow MIDI, then run the check again.");
+    }
+  }, [detach, enumerate]);
+
+  useEffect(() => detach, [detach]);
+
+  const RED = "#C7553F";
+  const Panel = ({ color, children }) => (
+    <div style={{ padding: 18, borderRadius: 14, border: `1.5px solid ${color}`, background: "rgba(255,255,255,0.02)", marginTop: 16 }}>
+      {children}
+    </div>
+  );
+  const Big = ({ color, children }) => <div style={{ font: `800 26px ${FONT_DISPLAY}`, color, margin: "0 0 6px" }}>{children}</div>;
+  const Sub = ({ children }) => <p style={{ font: `400 15px ${FONT_DISPLAY}`, color: T.boneDim, lineHeight: 1.6, margin: 0 }}>{children}</p>;
+
+  return (
+    <div className="dc-rise" style={{ maxWidth: 680, margin: "0 auto" }}>
+      <Eyebrow>Troubleshooting · Is the cord good?</Eyebrow>
+      <h1 style={{ font: `800 30px ${FONT_DISPLAY}`, color: T.bone, margin: "10px 0 6px", lineHeight: 1.1 }}>
+        USB Cable Check
+      </h1>
+      <p style={{ font: `400 15px ${FONT_DISPLAY}`, color: T.boneDim, margin: "0 0 4px", lineHeight: 1.55 }}>
+        Plug the kit into this computer's USB, turn the kit on, then run the check. It proves whether the cable
+        actually carries <strong style={{ color: T.bone }}>data</strong> — the #1 reason a kit won't connect is a
+        <strong style={{ color: T.bone }}> charge-only cable</strong> that looks fine but can't send MIDI.
+      </p>
+
+      <Card style={{ marginTop: 18 }}>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+          <Btn onClick={start} disabled={phase === "checking"}>
+            {phase === "idle" ? "▶ Run the check" : phase === "checking" ? "Checking…" : "↻ Check again"}
+          </Btn>
+          {(phase === "nodevice" || phase === "ready") && (
+            <span style={{ font: `400 13px ${FONT_MONO}`, color: T.steel }}>
+              Listening live — swap the cable and it updates automatically.
+            </span>
+          )}
+        </div>
+
+        {phase === "error" && (
+          <Panel color={RED}>
+            <Big color={RED}>⚠️ Can't run the check</Big>
+            <Sub>{errText}</Sub>
+          </Panel>
+        )}
+
+        {phase === "nodevice" && (
+          <Panel color={RED}>
+            <Big color={RED}>❌ No kit detected</Big>
+            <Sub>The computer sees no drum kit on USB. That almost always means one of these:</Sub>
+            <ul style={{ font: `400 14px ${FONT_DISPLAY}`, color: T.boneDim, lineHeight: 1.7, margin: "10px 0 0", paddingLeft: 20 }}>
+              <li><strong style={{ color: T.bone }}>Charge-only cable</strong> — swap it for one you know transfers data (a phone-sync cable).</li>
+              <li>Wrong port — must be the module's <strong style={{ color: T.bone }}>USB COMPUTER</strong> port, not MIDI or trigger jacks.</li>
+              <li>Kit is powered off, or plugged into a weak USB hub — try a port directly on the computer.</li>
+            </ul>
+            <div style={{ marginTop: 12, font: `400 13px ${FONT_MONO}`, color: T.warn }}>
+              Verdict: cable/port is <strong>not passing data</strong> yet. Keep this open and swap the cable — it re-checks live.
+            </div>
+          </Panel>
+        )}
+
+        {phase === "ready" && (
+          <Panel color={T.good}>
+            <Big color={T.good}>✅ Good cable — kit detected!</Big>
+            <Sub>The cable carries data and the computer sees your kit{devices[0] ? <> as <strong style={{ color: T.bone }}>“{devices[0]}”</strong></> : ""}. One last step to be 100% sure:</Sub>
+            <div style={{ marginTop: 12, padding: "12px 14px", borderRadius: 10, background: T.bgRaise, border: `1px solid ${T.line}`,
+              font: `700 15px ${FONT_DISPLAY}`, color: T.brassHi, textAlign: "center" }}>
+              🥁 Now hit any drum on your kit…
+            </div>
+          </Panel>
+        )}
+
+        {phase === "pass" && (
+          <Panel color={T.good}>
+            <Big color={T.good}>✅ Cable is good — data is flowing!</Big>
+            <Sub>Your kit is sending live signals to this computer, so the cable and connection are working perfectly. You're ready to play.</Sub>
+            <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginTop: 14 }}>
+              <Stat label="Kit" value={devices[0] ? (devices[0].length > 16 ? devices[0].slice(0, 15) + "…" : devices[0]) : "connected"} ok />
+              <Stat label="Last hit" value={lastHit ? lastHit.name : "—"} ok />
+              <Stat label="Signals" value={hits} ok />
+            </div>
+          </Panel>
+        )}
+
+        {phase === "idle" && (
+          <div style={{ marginTop: 16, font: `400 13px ${FONT_MONO}`, color: T.steel, lineHeight: 1.6 }}>
+            The check runs entirely in your browser — it just asks the computer whether a MIDI device is present, then
+            watches for a real hit. Nothing is sent anywhere.
+          </div>
+        )}
+      </Card>
+
+      <Card style={{ marginTop: 16 }}>
+        <div style={{ font: `700 12px ${FONT_MONO}`, color: T.brass, letterSpacing: "0.1em", marginBottom: 10 }}>WHAT THIS TELLS YOU</div>
+        {[
+          ["Kit shows up", "The cable carries data — it's a good cable."],
+          ["Kit doesn't show up", "The cable is charge-only or in the wrong port — that's your problem."],
+          ["Hit registers", "Data flows end-to-end. Fully working."],
+        ].map(([q, a], i) => (
+          <div key={i} style={{ display: "flex", gap: 10, padding: "8px 0", borderBottom: i < 2 ? `1px solid ${T.line}` : "none" }}>
+            <span style={{ font: `700 13px ${FONT_DISPLAY}`, color: T.bone, minWidth: 150 }}>{q}</span>
+            <span style={{ font: `400 13px ${FONT_DISPLAY}`, color: T.boneDim, flex: 1 }}>{a}</span>
+          </div>
+        ))}
+      </Card>
+    </div>
+  );
+}
+
+/* ============================================================
    VIEW: Setup / onboarding
    ============================================================ */
 function SetupView({ confirmed, onConfirm, photo, setPhoto, layout, moveLayout, resetLayout }) {
@@ -2673,6 +2843,7 @@ export default function App({ userEmail, userName, onSignOut, onKidsMode } = {})
   const NAV = [
     { id: "setup", label: "Setup" },
     { id: "kit", label: "Kit" },
+    { id: "cable", label: "USB Check" },
     { id: "lessons", label: "Lessons" },
     { id: "practice", label: "Practice" },
     { id: "sequences", label: "Sequences" },
@@ -2758,6 +2929,7 @@ export default function App({ userEmail, userName, onSignOut, onKidsMode } = {})
         {view === "kit" && (
           <KitView hitPad={hitPad} layout={layout} moveLayout={moveLayout} resetLayout={resetLayout} go={setView} />
         )}
+        {view === "cable" && <CableCheckView />}
         {view === "lessons" && (
           <LessonsView progress={progress} setProgress={setProgress} go={setView} skills={skills}
             subscribeHits={subscribeHits} midiStatus={status} onConnect={connect} />
