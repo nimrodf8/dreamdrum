@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   PADS, NOTE_TO_PAD, PADMAP, useMidi, useMetronome, drumCtx, playDrum,
 } from "./drumEngine.js";
+import { AssemblyArt } from "./assemblyArt.jsx";
 
 /* ============================================================
    DREAMDRUM · SPACE CADETS
@@ -1052,7 +1053,8 @@ function HomeScreen({ stars, done, badges, go, soundOn }) {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }} className="k-drumgrid">
         {[["drums", "🥁", "My Drums", C.cyan], ["play", "🎮", "Play Games", C.purple],
-          ["jam", "🎧", "Jam Along", C.orange], ["badges", "🏆", "My Badges", C.gold]].map(([id, e, t, col]) => (
+          ["jam", "🎧", "Jam Along", C.orange], ["build", "🛠️", "Build Drums", C.green],
+          ["badges", "🏆", "My Badges", C.gold]].map(([id, e, t, col]) => (
           <button key={id} onClick={() => go(id)} className="k-press"
             style={{ background: C.card, border: `3px solid ${col}`, borderRadius: 20, padding: "18px 10px",
               cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
@@ -1097,6 +1099,54 @@ function BadgesScreen({ stars, badges, onReset }) {
           🔄 Start over
         </button>
       </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   SCREEN: Build Your Drums (kid-friendly assembly)
+   Reuses the shared AssemblyArt diagrams with simple words + voice.
+   ============================================================ */
+const BUILD_STEPS = [
+  { n: 1, s: 2, t: "Build the metal frame", say: "First, build the metal stand. It's like a skeleton that holds all your drums up!" },
+  { n: 2, s: 4, t: "Put the drums on", say: "Now clip on the drums — the snare in front of you, the toms up on top, and the big boomy kick down on the floor." },
+  { n: 3, s: 5, t: "Add the shiny cymbals", say: "Add the crash and the ride cymbals, and the hi-hat with its foot pedal." },
+  { n: 4, s: 7, t: "Plug in the cables", say: "Plug each cable into the matching name on the brain box. Snare goes to SNARE, kick goes to KICK!" },
+  { n: 5, s: 6, t: "Sit down and play!", say: "All done! Sit on your stool, grab your sticks, and get ready to rock and roll!" },
+];
+
+function BuildScreen({ soundOn }) {
+  const box = { borderRadius: 16, overflow: "hidden", border: `2px solid ${C.line}`,
+    background: "radial-gradient(circle at 50% 30%, #1a1440, #0B1026)", padding: "6px 4px", marginTop: 10 };
+  return (
+    <div className="k-rise">
+      <h1 style={{ font: `700 30px ${FONT}`, color: C.ink, margin: "0 0 4px" }}>🛠️ Build Your Drums</h1>
+      <p style={{ font: `500 17px ${FONT}`, color: C.dim, margin: "0 0 16px" }}>
+        Watch your drum kit come together, step by step!
+      </p>
+      <CosmoSays text="Let's build your space drum kit! It has lots of screws, so grab a grown-up to help. Ready? Here we go!" soundOn={soundOn} mood="cheer" size={84} />
+      <div style={{ height: 16 }} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {BUILD_STEPS.map((st) => (
+          <KidCard key={st.n} color={C.cyan}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 12, background: C.cyan,
+                color: C.space, font: `700 18px ${FONT}`, display: "flex", alignItems: "center", justifyContent: "center" }}>{st.n}</span>
+              <h2 style={{ font: `700 20px ${FONT}`, color: C.ink, margin: 0, flex: 1 }}>{st.t}</h2>
+              <button onClick={() => speak(st.say)} aria-label="Read out loud" className="k-press"
+                style={{ font: `600 14px ${FONT}`, background: C.yellow, color: C.space, border: "none",
+                  borderRadius: 999, padding: "6px 12px", cursor: "pointer" }}>🔊</button>
+            </div>
+            <div style={box}><AssemblyArt step={st.s} /></div>
+            <p style={{ font: `500 16px ${FONT}`, color: C.dim, margin: "10px 0 0", lineHeight: 1.45 }}>{st.say}</p>
+          </KidCard>
+        ))}
+      </div>
+      <KidCard color={C.yellow} style={{ marginTop: 16 }}>
+        <p style={{ font: `500 16px ${FONT}`, color: C.ink, margin: 0, lineHeight: 1.5 }}>
+          👩‍🔧 <strong>Grown-up tip:</strong> keep the screws a little loose until everything is in place, then tighten them all at the end.
+        </p>
+      </KidCard>
     </div>
   );
 }
@@ -1237,6 +1287,7 @@ export default function KidsApp({ onExit } = {}) {
             {view === "play" && <PlayRoom tap={tap} subscribeHits={subscribeHits} midiStatus={status}
               onConnect={connect} soundOn={soundOn} awardStar={awardStar} />}
             {view === "jam" && <JamScreen tap={tap} hitPad={hitPad} midiStatus={status} onConnect={connect} soundOn={soundOn} />}
+            {view === "build" && <BuildScreen soundOn={soundOn} />}
             {view === "badges" && <BadgesScreen stars={stars} badges={badges}
               onReset={() => { setDone([]); setStars(0); setBadges([]); setView("home"); }} />}
           </>
