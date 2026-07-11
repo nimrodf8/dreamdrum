@@ -538,17 +538,22 @@ function AssemblyView({ go }) {
           THE BUILD AT A GLANCE
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10 }}>
-          {[{ s: 2, l: "Rack frame" }, { s: 3, l: "+ Module" }, { s: 4, l: "+ Pads" }, { s: 5, l: "+ Cymbals" }, { s: 6, l: "Complete kit" }].map((o, i) => (
-            <button key={o.s} className="dc-focus"
-              onClick={() => document.getElementById(`asm-step-${o.s}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
-              title={`Jump to “${ASM_STEPS[o.s - 1].t}”`}
-              style={{ background: "radial-gradient(circle at 50% 30%, #1E1A14, #15120E)", cursor: "pointer",
-                border: `1px solid ${i === 4 ? T.brass : T.line}`, borderRadius: 10, padding: "6px 4px 8px" }}>
-              <AssemblyArt step={o.s} />
-              <div style={{ textAlign: "center", font: `700 10px ${FONT_MONO}`, letterSpacing: "0.05em",
-                color: i === 4 ? T.good : T.boneDim, marginTop: 2 }}>{`${i + 1} · ${o.l}`}</div>
-            </button>
-          ))}
+          {[{ lvl: 2, to: 2, l: "Rack frame" }, { lvl: 3, to: 3, l: "+ Module" }, { lvl: 4, to: 4, l: "+ Kick" },
+            { lvl: 5, to: 4, l: "+ Snare" }, { lvl: 6, to: 4, l: "+ Toms" }, { lvl: 7, to: 5, l: "+ Hi-hat" },
+            { lvl: 9, to: 5, l: "+ Cymbals" }, { lvl: 10, to: 6, l: "Complete" }].map((o, i, arr) => {
+            const last = i === arr.length - 1;
+            return (
+              <button key={i} className="dc-focus"
+                onClick={() => document.getElementById(`asm-step-${o.to}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                title={`Jump to “${ASM_STEPS[o.to - 1].t}”`}
+                style={{ background: "radial-gradient(circle at 50% 30%, #1E1A14, #15120E)", cursor: "pointer",
+                  border: `1px solid ${last ? T.brass : T.line}`, borderRadius: 10, padding: "6px 4px 8px" }}>
+                <AssemblyArt level={o.lvl} />
+                <div style={{ textAlign: "center", font: `700 10px ${FONT_MONO}`, letterSpacing: "0.05em",
+                  color: last ? T.good : T.boneDim, marginTop: 2 }}>{`${i + 1} · ${o.l}`}</div>
+              </button>
+            );
+          })}
         </div>
       </Card>
 

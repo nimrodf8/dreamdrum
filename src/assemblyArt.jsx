@@ -3,20 +3,32 @@ import React from "react";
 /* ============================================================
    Assembly illustrations — shared by the grown-up guide and the
    kids' "Build Your Drums" screen. Stage-by-stage SVG diagrams
-   drawn in the realistic kit style. `step` (1–9) selects what's
-   shown as the kit comes together. Colours are self-contained so
-   the component drops into either theme.
+   drawn in the realistic kit style. Two ways to drive it:
+     • step  (1–9)  — the nine guide steps (parts, wiring, test…)
+     • level (1–10) — a fine-grained build, one piece at a time,
+                      for the "at a glance" overview strip.
+   Colours are self-contained so it drops into either theme.
    ============================================================ */
 const A = { brass: "#D6A24A", strike: "#F2A33C", steel: "#8A8170" };
 const MONO = "'Space Mono', ui-monospace, monospace";
 
-export function AssemblyArt({ step }) {
+export function AssemblyArt({ step, level }) {
   const FLOOR = 176;
-  const frame = (step >= 2 && step <= 6) || step === 8;
-  const module_ = (step >= 3 && step <= 6) || step === 8;
-  const drums = (step >= 4 && step <= 6) || step === 8;
-  const cym = (step >= 5 && step <= 6) || step === 8;
-  const seat = step === 6 || step === 8;
+  const L = level != null;
+
+  // per-piece visibility, from either the fine `level` or the guide `step`
+  const inStep = (a, b) => (step >= a && step <= b) || step === 8;
+  const legs = L ? level >= 1 : inStep(2, 6);
+  const top = L ? level >= 2 : inStep(2, 6);
+  const mod = L ? level >= 3 : inStep(3, 6);
+  const kick = L ? level >= 4 : inStep(4, 6);
+  const snare = L ? level >= 5 : inStep(4, 6);
+  const toms = L ? level >= 6 : inStep(4, 6);
+  const hihat = L ? level >= 7 : inStep(5, 6);
+  const crash = L ? level >= 8 : inStep(5, 6);
+  const ride = L ? level >= 9 : inStep(5, 6);
+  const seat = L ? level >= 10 : step === 6 || step === 8;
+  const kickGlow = !L && step === 8;
 
   const Pipe = ({ x1, y1, x2, y2, w = 6 }) => (
     <g>
@@ -75,14 +87,13 @@ export function AssemblyArt({ step }) {
       <line x1="12" y1={FLOOR} x2="308" y2={FLOOR} stroke="#231F18" strokeWidth="1" opacity="0.6" />
 
       {/* ---------- Step 1: parts laid out ---------- */}
-      {step === 1 && (
+      {step === 1 && !L && (
         <g>
           <g transform="translate(58,70)"><Drum x={0} y={0} r={20} /></g>
           <g transform="translate(150,60)"><Cymbal x={0} y={0} r={22} drop={0} /></g>
           <g transform="translate(240,70)"><Kick x={0} y={0} /></g>
           <Pipe x1={40} y1={130} x2={110} y2={130} w={6} />
           <Module x={190} y={116} />
-          {/* drum key (wrench) */}
           <g transform="translate(150,132)">
             <rect x="-2" y="-14" width="4" height="20" rx="1.5" fill="#6A6253" />
             <rect x="-8" y="-16" width="16" height="6" rx="2" fill="#6A6253" />
@@ -92,8 +103,8 @@ export function AssemblyArt({ step }) {
         </g>
       )}
 
-      {/* ---------- The rack + kit build ---------- */}
-      {frame && (
+      {/* ---------- Rack legs / uprights ---------- */}
+      {legs && (
         <g>
           <ellipse cx="58" cy={FLOOR} rx="14" ry="4" fill="#000" opacity="0.25" />
           <ellipse cx="262" cy={FLOOR} rx="14" ry="4" fill="#000" opacity="0.25" />
@@ -101,36 +112,41 @@ export function AssemblyArt({ step }) {
           <Pipe x1={262} y1={FLOOR} x2={242} y2={108} />
           <Pipe x1={78} y1={112} x2={78} y2={54} />
           <Pipe x1={242} y1={108} x2={242} y2={50} />
-          <Pipe x1={70} y1={56} x2={250} y2={50} />
           <Pipe x1={78} y1={96} x2={242} y2={92} w={5} />
+        </g>
+      )}
+      {/* ---------- Top bar + clamps ---------- */}
+      {top && (
+        <g>
+          <Pipe x1={70} y1={56} x2={250} y2={50} />
           <Clamp x={116} y={55} /><Clamp x={172} y={53} /><Clamp x={242} y={92} />
         </g>
       )}
-      {module_ && (
+      {mod && (
         <g><Pipe x1={40} y1={118} x2={62} y2={110} w={4} /><Module x={20} y={112} /></g>
       )}
-      {drums && (
+      {kick && <Kick x={150} y={162} glow={kickGlow} />}
+      {snare && (
         <g>
-          {/* high & mid toms on top bar */}
-          <Pipe x1={116} y1={55} x2={116} y2={74} w={3} /><Drum x={116} y={78} r={19} />
-          <Pipe x1={172} y1={53} x2={172} y2={74} w={3} /><Drum x={172} y={78} r={19} />
-          {/* floor tom on right */}
-          <Pipe x1={242} y1={92} x2={236} y2={112} w={3} /><Drum x={236} y={116} r={22} />
-          {/* snare on its own stand front-centre */}
           <Pipe x1={150} y1={150} x2={136} y2={FLOOR} w={3} /><Pipe x1={150} y1={150} x2={164} y2={FLOOR} w={3} /><Pipe x1={150} y1={150} x2={150} y2={FLOOR} w={3} />
           <Drum x={150} y={138} r={24} />
-          <Kick x={150} y={162} glow={step === 8} />
         </g>
       )}
-      {cym && (
+      {toms && (
         <g>
-          <Pipe x1={96} y1={52} x2={78} y2={54} w={3} /><Cymbal x={96} y={46} r={24} drop={30} />
-          <Pipe x1={224} y1={50} x2={242} y2={50} w={3} /><Cymbal x={224} y={44} r={26} drop={30} />
-          {/* hi-hat with pedal */}
+          <Pipe x1={116} y1={55} x2={116} y2={74} w={3} /><Drum x={116} y={78} r={19} />
+          <Pipe x1={172} y1={53} x2={172} y2={74} w={3} /><Drum x={172} y={78} r={19} />
+          <Pipe x1={242} y1={92} x2={236} y2={112} w={3} /><Drum x={236} y={116} r={22} />
+        </g>
+      )}
+      {hihat && (
+        <g>
           <Cymbal x={64} y={100} r={18} drop={FLOOR - 100 - 8} />
           <rect x={54} y={FLOOR - 6} width="22" height="8" rx="2" fill="#241F18" stroke="#3B342A" strokeWidth="1" />
         </g>
       )}
+      {crash && (<g><Pipe x1={96} y1={52} x2={78} y2={54} w={3} /><Cymbal x={96} y={46} r={24} drop={30} /></g>)}
+      {ride && (<g><Pipe x1={224} y1={50} x2={242} y2={50} w={3} /><Cymbal x={224} y={44} r={26} drop={30} /></g>)}
       {seat && (
         <g>
           <ellipse cx="292" cy={FLOOR} rx="16" ry="4" fill="#000" opacity="0.25" />
@@ -141,7 +157,7 @@ export function AssemblyArt({ step }) {
       )}
 
       {/* ---------- Step 7: wire to the module ---------- */}
-      {step === 7 && (
+      {step === 7 && !L && (
         <g>
           <Module x={26} y={58} big />
           {["SNARE", "TOM1", "TOM2", "TOM3", "HH", "CR", "RD", "KICK"].map((lbl, i) => {
@@ -161,13 +177,11 @@ export function AssemblyArt({ step }) {
       )}
 
       {/* ---------- Step 9: clamp + drum key ---------- */}
-      {step === 9 && (
+      {step === 9 && !L && (
         <g>
           <Pipe x1={70} y1={110} x2={250} y2={110} w={12} />
-          {/* clamp bracket */}
           <rect x={150} y={92} width="34" height="36" rx="4" fill="#2A2620" stroke={A.brass} strokeWidth="2" />
           <rect x={156} y={98} width="22" height="10" rx="2" fill={A.brass} />
-          {/* drum key turning */}
           <g transform="translate(167,150)">
             <rect x="-3" y="-34" width="6" height="30" rx="2" fill="#7A705C" />
             <rect x="-11" y="-40" width="22" height="9" rx="2.5" fill="#7A705C" />
