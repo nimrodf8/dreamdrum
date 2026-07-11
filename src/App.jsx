@@ -519,6 +519,48 @@ const ASM_FIXES = [
   ["The rack wobbles", "Level the feet on the floor and tighten the frame clamps; snug pad clamps last."],
 ];
 
+/* Which labelled cable goes to which pad — shown on the wiring step. */
+const ASM_WIRING = [
+  ["SNARE", "Snare — front & centre", "PDX-12"],
+  ["TOM 1", "High tom — top rack, left", "PD-8H"],
+  ["TOM 2", "Mid tom — top rack, right", "PD-8H"],
+  ["TOM 3", "Floor tom — lower right", "PD-10H"],
+  ["KICK", "Kick pad on the floor", "KD-10"],
+  ["HI-HAT", "Hi-hat cymbal", "CY-5"],
+  ["HI-HAT CTRL", "Hi-hat foot pedal", "FD-9"],
+  ["CRASH", "Crash cymbal — upper left", "CY-12C-T"],
+  ["RIDE", "Ride cymbal — upper right", "CY-14R-T"],
+];
+
+function WiringTable() {
+  return (
+    <div style={{ marginTop: 12, border: `1px solid ${T.line}`, borderRadius: 10, overflow: "hidden" }}>
+      <div style={{ display: "flex", padding: "8px 12px", background: T.bgCardHi,
+        font: `700 10px ${FONT_MONO}`, letterSpacing: "0.08em", color: T.brass }}>
+        <span style={{ width: 92, flexShrink: 0 }}>CABLE</span>
+        <span style={{ flex: 1 }}>GOES TO</span>
+        <span style={{ width: 78, flexShrink: 0, textAlign: "right" }}>PART</span>
+      </div>
+      {ASM_WIRING.map(([label, dest, model], i) => (
+        <div key={label} style={{ display: "flex", alignItems: "center", padding: "9px 12px",
+          borderTop: `1px solid ${T.line}`, background: i % 2 ? T.bgRaise : "transparent" }}>
+          <span style={{ width: 92, flexShrink: 0 }}>
+            <span style={{ font: `700 10px ${FONT_MONO}`, color: T.bg, background: T.brass,
+              padding: "3px 7px", borderRadius: 6, whiteSpace: "nowrap" }}>{label}</span>
+          </span>
+          <span style={{ flex: 1, font: `400 13px ${FONT_DISPLAY}`, color: T.bone }}>{dest}</span>
+          <span style={{ width: 78, flexShrink: 0, textAlign: "right", font: `400 11px ${FONT_MONO}`, color: T.steel }}>{model}</span>
+        </div>
+      ))}
+      <div style={{ padding: "9px 12px", borderTop: `1px solid ${T.line}`, background: "rgba(214,162,74,0.08)",
+        font: `400 12px ${FONT_DISPLAY}`, color: T.brassHi, lineHeight: 1.5 }}>
+        ⚠️ The hi-hat needs <strong>two</strong> cables — the cymbal to <strong>HI-HAT</strong> and the foot pedal to{" "}
+        <strong>HI-HAT CTRL</strong>. Miss the control cable and it won't open or close.
+      </div>
+    </div>
+  );
+}
+
 function AssemblyView({ go }) {
   const [checked, setChecked] = useState([]);
   const toggle = (i) => setChecked((c) => (c.includes(i) ? c.filter((x) => x !== i) : [...c, i]));
@@ -596,6 +638,7 @@ function AssemblyView({ go }) {
                   <AssemblyArt step={Number(s.icon)} />
                 </div>
                 <p style={{ font: `400 14px ${FONT_DISPLAY}`, color: T.boneDim, lineHeight: 1.6, margin: 0 }}>{s.b}</p>
+                {s.icon === "7" && <WiringTable />}
                 <div style={{ marginTop: 10, padding: "8px 12px", borderRadius: 9, background: T.bgRaise,
                   border: `1px solid ${T.line}`, font: `400 13px ${FONT_DISPLAY}`, color: T.brassHi }}>
                   💡 {s.tip}
