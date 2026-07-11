@@ -663,7 +663,7 @@ function AssemblyView({ go }) {
 
       <div style={{ marginTop: 20, display: "flex", gap: 12, flexWrap: "wrap" }}>
         <Btn onClick={() => go?.("setup")}>Built it — confirm my layout →</Btn>
-        <Btn variant="ghost" onClick={() => go?.("kit")}>Meet the kit first</Btn>
+        <Btn variant="ghost" onClick={() => go?.("lessons")}>Start the course →</Btn>
       </div>
     </div>
   );
@@ -757,7 +757,7 @@ function SetupView({ confirmed, onConfirm, photo, setPhoto, layout, moveLayout, 
 /* ============================================================
    VIEW: Kit explorer
    ============================================================ */
-function KitView({ hitPad, layout, moveLayout, resetLayout }) {
+function KitView({ hitPad, layout, moveLayout, resetLayout, go }) {
   const [sel, setSel] = useState("snare");
   const [adjust, setAdjust] = useState(false);
   const [view, setView] = useState("angled");
@@ -813,6 +813,10 @@ function KitView({ hitPad, layout, moveLayout, resetLayout }) {
             ))}
           </div>
         </Card>
+      </div>
+
+      <div style={{ borderTop: `1px solid ${T.line}`, margin: "30px 0 0", paddingTop: 26 }}>
+        <AssemblyView go={go} />
       </div>
     </div>
   );
@@ -2667,7 +2671,6 @@ export default function App({ userEmail, userName, onSignOut, onKidsMode } = {})
     : [];
 
   const NAV = [
-    { id: "assemble", label: "Assemble" },
     { id: "setup", label: "Setup" },
     { id: "kit", label: "Kit" },
     { id: "lessons", label: "Lessons" },
@@ -2747,14 +2750,13 @@ export default function App({ userEmail, userName, onSignOut, onKidsMode } = {})
 
       {/* Main */}
       <main className="dc-main" style={{ maxWidth: 1080, margin: "0 auto", padding: "32px 22px 60px" }}>
-        {view === "assemble" && <AssemblyView go={setView} />}
         {view === "setup" && (
           <SetupView confirmed={confirmed} onConfirm={() => { setConfirmed(true); setView("lessons"); }}
             photo={photo} setPhoto={setPhoto}
             layout={layout} moveLayout={moveLayout} resetLayout={resetLayout} />
         )}
         {view === "kit" && (
-          <KitView hitPad={hitPad} layout={layout} moveLayout={moveLayout} resetLayout={resetLayout} />
+          <KitView hitPad={hitPad} layout={layout} moveLayout={moveLayout} resetLayout={resetLayout} go={setView} />
         )}
         {view === "lessons" && (
           <LessonsView progress={progress} setProgress={setProgress} go={setView} skills={skills}
