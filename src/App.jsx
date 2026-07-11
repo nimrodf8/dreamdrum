@@ -707,6 +707,22 @@ function AssemblyView({ go }) {
 
       <Card style={{ marginBottom: 18 }}>
         <div style={{ font: `700 12px ${FONT_MONO}`, color: T.brass, letterSpacing: "0.1em", marginBottom: 12 }}>
+          THE BUILD AT A GLANCE
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10 }}>
+          {[{ s: 2, l: "Rack frame" }, { s: 3, l: "+ Module" }, { s: 4, l: "+ Pads" }, { s: 5, l: "+ Cymbals" }, { s: 6, l: "Complete kit" }].map((o, i) => (
+            <div key={o.s} style={{ background: "radial-gradient(circle at 50% 30%, #1E1A14, #15120E)",
+              border: `1px solid ${i === 4 ? T.brass : T.line}`, borderRadius: 10, padding: "6px 4px 8px" }}>
+              <AssemblyArt step={o.s} />
+              <div style={{ textAlign: "center", font: `700 10px ${FONT_MONO}`, letterSpacing: "0.05em",
+                color: i === 4 ? T.good : T.boneDim, marginTop: 2 }}>{`${i + 1} · ${o.l}`}</div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card style={{ marginBottom: 18 }}>
+        <div style={{ font: `700 12px ${FONT_MONO}`, color: T.brass, letterSpacing: "0.1em", marginBottom: 12 }}>
           PARTS CHECKLIST
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }} className="dc-grid">
