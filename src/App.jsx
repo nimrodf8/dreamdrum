@@ -460,6 +460,144 @@ function ConnChip({ status, deviceName, onConnect }) {
 }
 
 /* ============================================================
+   VIEW: Assembly guide (build the physical TD-313)
+   ------------------------------------------------------------
+   A general build + positioning guide grounded in the kit's real
+   components. Roland's printed setup sheet is authoritative for
+   exact clamp positions; this covers the order, placement,
+   cabling and ergonomics that the sheet skims over.
+   ============================================================ */
+const ASM_PARTS = [
+  "TD-313 sound module (the “brain”)",
+  "Drum rack / stand — pipes, clamps, feet",
+  "PDX-12 snare pad (12″ mesh)",
+  "PD-8H pads ×2 — high & mid toms",
+  "PD-10H pad — floor tom",
+  "KD-10 kick pad + kick pedal",
+  "CY-12C-T crash cymbal",
+  "CY-14R-T ride cymbal",
+  "CY-5 hi-hat cymbal + FD-9 hi-hat pedal",
+  "Cable harness / snake + module mount",
+  "Drum key / wrench, wing bolts, clamps",
+];
+
+const ASM_STEPS = [
+  { t: "Unpack & check the parts", icon: "1",
+    b: "Lay every part out on the floor and match it to the checklist above before you build anything. Find the drum key (the small wrench) — you'll need it constantly. Keep the printed Roland setup diagram beside you; it shows the exact clamp positions for your kit.",
+    tip: "Don't throw away any bags of bolts until the very end." },
+  { t: "Build the rack frame first", icon: "2",
+    b: "The metal rack is the skeleton — build it before hanging anything. Assemble the two side uprights, the feet, and the horizontal cross-bar(s) into the frame. Slot the clamps onto the bars where the diagram shows, but only hand-tighten everything for now so you can still slide and angle parts.",
+    tip: "Loose-then-final: nothing gets fully tightened until it's all positioned." },
+  { t: "Mount the sound module", icon: "3",
+    b: "Attach the module holder plate to the rack (usually the front-left bar) and clip the TD-313 onto it, tilted so you can read and reach it from the throne. Leave the cables for later — just get the brain mounted.",
+    tip: "Put the module where your right hand can reach the dial without leaning." },
+  { t: "Hang the drum pads", icon: "4",
+    b: "Now the pads, on their clamps: SNARE (PDX-12) front-and-centre, just above your lap, tilted slightly toward you. TOM 1 & TOM 2 (PD-8H) side by side on the top bar — high tom left, mid tom right. FLOOR TOM (PD-10H) down on the right upright, lower and flatter. KICK (KD-10) on the floor dead-centre, with the kick pedal clamped to its hoop.",
+    tip: "Snare height ≈ just above your thighs so your wrists stay relaxed." },
+  { t: "Add the cymbals", icon: "5",
+    b: "CRASH (CY-12C-T) on an arm to your upper-left, angled toward you. RIDE (CY-14R-T) to your upper-right, a touch higher and flatter. HI-HAT (CY-5) to your left on its own arm, with the FD-9 pedal on the floor under your left foot. Give each cymbal room to move without clashing into a pad.",
+    tip: "Cymbals slightly tilted toward you = easier, safer strokes." },
+  { t: "Sit down and size it up", icon: "6",
+    b: "Set the throne so your thighs sit around 90–110° with feet flat — right foot on the kick pedal, left on the hi-hat pedal. Sit toward the front edge. Now reach for every pad and cymbal: nothing should make you stretch or hunch. Nudge each piece until it all falls under your hands and feet naturally.",
+    tip: "Comfort beats symmetry — set it up for YOUR body, not the photo." },
+  { t: "Wire everything to the module", icon: "7",
+    b: "Plug the cable harness (snake) into the module's trigger inputs — each is labelled: SNARE, TOM 1, TOM 2, TOM 3, CRASH, RIDE, HI-HAT, HI-HAT CTRL, KICK. Match each labelled plug to the same-labelled input, then run the other end to the matching pad. Route the cables neatly along the rack and clip them so nothing dangles into your legs.",
+    tip: "Match the label on the cable to the label on the input — one at a time." },
+  { t: "Power on & trigger-test", icon: "8",
+    b: "Plug in the module and switch it on. Hit each pad and cymbal once and watch the module register the hit — go around the whole kit. Press the hi-hat pedal and check it opens/closes. If a pad is silent, it's almost always a loose cable at one end.",
+    tip: "Then connect USB to your iPad/computer and open DreamDrum to see it light up." },
+  { t: "Final tighten", icon: "9",
+    b: "With everything positioned and working, go back around and firmly tighten every clamp, wing bolt and joint with the drum key. Give the whole rack a gentle wiggle — it should feel solid, no drooping pads or spinning cymbals.",
+    tip: "A pad that sags after a session just needs its clamp snugged again." },
+];
+
+const ASM_FIXES = [
+  ["A pad makes no sound", "Reseat the cable at both ends (pad and module input). Confirm it's in the correctly-labelled input."],
+  ["Hi-hat won't open/close", "Check the FD-9 pedal's cable is in the HI-HAT CTRL input, not just HI-HAT."],
+  ["One hit triggers twice", "Lower that pad's sensitivity in the module's trigger settings, or move cables apart."],
+  ["The rack wobbles", "Level the feet on the floor and tighten the frame clamps; snug pad clamps last."],
+];
+
+function AssemblyView({ go }) {
+  const [checked, setChecked] = useState([]);
+  const toggle = (i) => setChecked((c) => (c.includes(i) ? c.filter((x) => x !== i) : [...c, i]));
+  return (
+    <div className="dc-rise" style={{ maxWidth: 760, margin: "0 auto" }}>
+      <Eyebrow>Before you play · Build the kit</Eyebrow>
+      <h1 style={{ font: `800 30px ${FONT_DISPLAY}`, color: T.bone, margin: "10px 0 6px", lineHeight: 1.1 }}>
+        Assembling your TD-313
+      </h1>
+      <p style={{ font: `400 15px ${FONT_DISPLAY}`, color: T.boneDim, margin: "0 0 22px", lineHeight: 1.55 }}>
+        Take it slowly and in order — frame first, then pads, then cables. Keep Roland's printed setup diagram
+        handy for the exact clamp spots; this walks you through the order, placement and wiring around it.
+      </p>
+
+      <Card style={{ marginBottom: 18 }}>
+        <div style={{ font: `700 12px ${FONT_MONO}`, color: T.brass, letterSpacing: "0.1em", marginBottom: 12 }}>
+          PARTS CHECKLIST
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }} className="dc-grid">
+          {ASM_PARTS.map((p, i) => {
+            const on = checked.includes(i);
+            return (
+              <button key={i} onClick={() => toggle(i)} className="dc-focus"
+                style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", cursor: "pointer",
+                  background: T.bgRaise, border: `1px solid ${on ? T.good : T.line}`, borderRadius: 10, padding: "9px 12px" }}>
+                <span style={{ width: 18, height: 18, borderRadius: 5, flexShrink: 0, display: "flex",
+                  alignItems: "center", justifyContent: "center", font: `700 11px ${FONT_DISPLAY}`,
+                  border: `1.5px solid ${on ? T.good : T.lineHi}`, background: on ? T.good : "transparent", color: T.bg }}>
+                  {on ? "✓" : ""}
+                </span>
+                <span style={{ font: `400 13px ${FONT_DISPLAY}`, color: on ? T.boneDim : T.bone,
+                  textDecoration: on ? "line-through" : "none" }}>{p}</span>
+              </button>
+            );
+          })}
+        </div>
+      </Card>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {ASM_STEPS.map((s) => (
+          <Card key={s.icon}>
+            <div style={{ display: "flex", gap: 14 }}>
+              <span style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 10, background: T.brass,
+                color: T.bg, font: `800 17px ${FONT_DISPLAY}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {s.icon}
+              </span>
+              <div style={{ flex: 1 }}>
+                <h2 style={{ font: `700 18px ${FONT_DISPLAY}`, color: T.bone, margin: "4px 0 6px" }}>{s.t}</h2>
+                <p style={{ font: `400 14px ${FONT_DISPLAY}`, color: T.boneDim, lineHeight: 1.6, margin: 0 }}>{s.b}</p>
+                <div style={{ marginTop: 10, padding: "8px 12px", borderRadius: 9, background: T.bgRaise,
+                  border: `1px solid ${T.line}`, font: `400 13px ${FONT_DISPLAY}`, color: T.brassHi }}>
+                  💡 {s.tip}
+                </div>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      <Card style={{ marginTop: 18 }}>
+        <div style={{ font: `700 12px ${FONT_MONO}`, color: T.brass, letterSpacing: "0.1em", marginBottom: 12 }}>
+          IF SOMETHING'S OFF
+        </div>
+        {ASM_FIXES.map(([q, a], i) => (
+          <div key={i} style={{ padding: "10px 0", borderBottom: i < ASM_FIXES.length - 1 ? `1px solid ${T.line}` : "none" }}>
+            <div style={{ font: `700 14px ${FONT_DISPLAY}`, color: T.bone }}>{q}</div>
+            <div style={{ font: `400 13px ${FONT_DISPLAY}`, color: T.boneDim, marginTop: 2, lineHeight: 1.5 }}>{a}</div>
+          </div>
+        ))}
+      </Card>
+
+      <div style={{ marginTop: 20, display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <Btn onClick={() => go?.("setup")}>Built it — confirm my layout →</Btn>
+        <Btn variant="ghost" onClick={() => go?.("kit")}>Meet the kit first</Btn>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
    VIEW: Setup / onboarding
    ============================================================ */
 function SetupView({ confirmed, onConfirm, photo, setPhoto, layout, moveLayout, resetLayout }) {
@@ -2457,6 +2595,7 @@ export default function App({ userEmail, userName, onSignOut, onKidsMode } = {})
     : [];
 
   const NAV = [
+    { id: "assemble", label: "Assemble" },
     { id: "setup", label: "Setup" },
     { id: "kit", label: "Kit" },
     { id: "lessons", label: "Lessons" },
@@ -2536,6 +2675,7 @@ export default function App({ userEmail, userName, onSignOut, onKidsMode } = {})
 
       {/* Main */}
       <main className="dc-main" style={{ maxWidth: 1080, margin: "0 auto", padding: "32px 22px 60px" }}>
+        {view === "assemble" && <AssemblyView go={setView} />}
         {view === "setup" && (
           <SetupView confirmed={confirmed} onConfirm={() => { setConfirmed(true); setView("lessons"); }}
             photo={photo} setPhoto={setPhoto}
