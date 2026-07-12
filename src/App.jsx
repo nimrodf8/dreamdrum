@@ -2545,11 +2545,53 @@ const SONG_TUTORIALS = [
         bars: [lanesFrom({ tom3: [0, 4], kick: [0, 3], snare: [2, 6] })] },
     ],
   },
+  {
+    id: "billiejean", title: "Billie Jean", artist: "Michael Jackson",
+    difficulty: "Beginner", bpm: 100, origBpm: 117,
+    blurb: "Maybe the most famous groove on the planet — and it never changes for the whole song. All about keeping it machine-tight.",
+    sections: [
+      { label: "The unstoppable groove", subdiv: 2, bpm: 96,
+        teach: "Hi-hat straight eighth notes, snare on beats 2 and 4, kick on 1 and 3. No fills, no tricks — the entire challenge is keeping it perfectly steady, like a drum machine. Lock in and don't drift a hair.",
+        bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 4] })] },
+    ],
+  },
+  {
+    id: "slts", title: "Smells Like Teen Spirit", artist: "Nirvana",
+    difficulty: "Intermediate", bpm: 100, origBpm: 117,
+    blurb: "Dave Grohl's quiet-loud dynamite: a tight held-back verse that explodes into crashing choruses.",
+    sections: [
+      { label: "Verse groove", subdiv: 2, bpm: 96,
+        teach: "The quiet verse is a controlled closed-hi-hat beat — eighths on the hats, snare on 2 and 4, kick on 1 and 3. Keep it tense and held back; you're loading the spring before the chorus.",
+        bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 4] })] },
+      { label: "Chorus — let it explode", subdiv: 2, bpm: 96,
+        teach: "When the distortion hits, swap the hi-hat for crash cymbals — eighth notes smashing on the crash, same snare and kick underneath. Play it huge and loud. This is the payoff.",
+        bars: [lanesFrom({ crash: R(8), snare: [2, 6], kick: [0, 4] })] },
+      { label: "The tom fill", subdiv: 4, bpm: 88,
+        teach: "A quick tumble around the toms leads you between sections. Snare into the toms, descending — clean and even, then land back on a crash.",
+        bars: [lanesFrom({ snare: [0, 1, 2, 3], tom1: [4, 5, 6, 7], tom2: [8, 9, 10, 11], tom3: [12, 13, 14, 15] })] },
+    ],
+  },
+  {
+    id: "intheair", title: "In the Air Tonight", artist: "Phil Collins",
+    difficulty: "Intermediate", bpm: 90, origBpm: 96,
+    blurb: "Home of the most famous drum fill ever recorded — the huge gated toms that drop in near the end.",
+    sections: [
+      { label: "The legendary fill", subdiv: 4, bpm: 80,
+        teach: "The moment everyone waits for. Play it as pairs tumbling down the kit — snare-snare, high tom-high tom, mid-mid, floor-floor. Slow and enormous; let every hit boom and ring.",
+        bars: [lanesFrom({ snare: [0, 2], tom1: [4, 6], tom2: [8, 10], tom3: [12, 14] })] },
+      { label: "The groove after", subdiv: 2, bpm: 88,
+        teach: "Once the fill lands, the full drum groove drives the finale — a straight beat: hats on eighths, snare on 2 and 4, kick on 1 and 3. Steady and powerful to the end.",
+        bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 4] })] },
+    ],
+  },
 ];
 
 function SongTutorialsView({ subscribeHits, midiStatus, onConnect, logSkill }) {
   const [openId, setOpenId] = useState(null);
+  const [diff, setDiff] = useState("All");
   const song = SONG_TUTORIALS.find((s) => s.id === openId);
+  const DIFFS = ["All", "Beginner", "Intermediate"];
+  const list = SONG_TUTORIALS.filter((s) => diff === "All" || s.difficulty === diff);
 
   if (song) {
     return (
@@ -2596,12 +2638,20 @@ function SongTutorialsView({ subscribeHits, midiStatus, onConnect, logSkill }) {
     <div className="dc-rise">
       <Eyebrow>Learn a song</Eyebrow>
       <h1 style={{ font: `800 28px ${FONT_DISPLAY}`, color: T.bone, margin: "10px 0 6px" }}>Song Tutorials</h1>
-      <p style={{ font: `400 14px ${FONT_DISPLAY}`, color: T.boneDim, lineHeight: 1.55, margin: "0 0 20px" }}>
+      <p style={{ font: `400 14px ${FONT_DISPLAY}`, color: T.boneDim, lineHeight: 1.55, margin: "0 0 16px" }}>
         Learn famous drum parts, section by section — the groove, the fills, then the whole thing. Tap Demo on any part
         to hear it first (no kit needed).
       </p>
+      <div style={{ display: "flex", gap: 8, marginBottom: 18, flexWrap: "wrap" }}>
+        {DIFFS.map((d) => (
+          <button key={d} onClick={() => setDiff(d)} className="dc-focus"
+            style={{ font: `700 12px ${FONT_MONO}`, padding: "6px 13px", borderRadius: 8, cursor: "pointer",
+              border: `1px solid ${diff === d ? T.brass : T.line}`,
+              background: diff === d ? T.bgCardHi : "transparent", color: diff === d ? T.brassHi : T.boneDim }}>{d}</button>
+        ))}
+      </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {SONG_TUTORIALS.map((s) => (
+        {list.map((s) => (
           <button key={s.id} onClick={() => setOpenId(s.id)} className="dc-focus"
             style={{ textAlign: "left", background: T.bgCard, border: `1px solid ${T.line}`, borderRadius: 12, padding: 16, cursor: "pointer" }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 3, flexWrap: "wrap" }}>
