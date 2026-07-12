@@ -2588,6 +2588,30 @@ const SONG_TUTORIALS = [
         bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 4] })] },
     ],
   },
+  {
+    id: "thereason", title: "The Reason", artist: "Hoobastank",
+    difficulty: "Beginner", bpm: 82, origBpm: 87,
+    blurb: "A mid-tempo rock ballad that grows from a gentle verse into a big, ringing chorus — a great study in dynamics.",
+    sections: [
+      { label: "The verse groove", subdiv: 2, bpm: 80,
+        teach: "Keep the verse soft and laid back: hi-hat eighth notes, snare on beats 2 and 4, kick on 1 and 3. Play it lightly and controlled — you're leaving room for the song to grow.",
+        bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 4] })] },
+      { label: "The chorus — open it up", subdiv: 2, bpm: 82,
+        teach: "For the chorus, move your right hand to the ride cymbal to open the sound up, and add a kick on the “and” of 2 for drive. Same snare backbeat, but bigger and brighter. Feel it lift.",
+        bars: [lanesFrom({ ride: R(8), snare: [2, 6], kick: [0, 3, 4] })] },
+      { label: "Fill into the chorus", subdiv: 4, bpm: 76,
+        teach: "Signal the chorus with a quick tumble down the toms — sixteenth notes: snare, high tom, mid tom, floor tom. Land right on the crash as the chorus hits.",
+        bars: [lanesFrom({ snare: [0, 1, 2, 3], tom1: [4, 5, 6, 7], tom2: [8, 9, 10, 11], tom3: [12, 13, 14, 15] })] },
+      { label: "Play it through", subdiv: 2, bpm: 80,
+        teach: "Two bars of the verse groove, the chorus on the ride, then a crash into beat 1. Tap Demo to hear the shape, then play it all the way through.",
+        bars: [
+          lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 4] }),
+          lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 4] }),
+          lanesFrom({ ride: R(8), snare: [2, 6], kick: [0, 3, 4] }),
+          lanesFrom({ crash: [0], ride: [1, 2, 3, 4, 5, 6, 7], snare: [2, 6], kick: [0, 3, 4] }),
+        ] },
+    ],
+  },
 ];
 
 function SongTutorialsView({ subscribeHits, midiStatus, onConnect, logSkill }) {
