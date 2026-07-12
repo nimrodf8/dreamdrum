@@ -1053,8 +1053,8 @@ function HomeScreen({ stars, done, badges, go, soundOn }) {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }} className="k-drumgrid">
         {[["drums", "🥁", "My Drums", C.cyan], ["play", "🎮", "Play Games", C.purple],
-          ["jam", "🎧", "Jam Along", C.orange], ["build", "🛠️", "Build Drums", C.green],
-          ["badges", "🏆", "My Badges", C.gold]].map(([id, e, t, col]) => (
+          ["songs", "🎵", "Play a Song", C.pink], ["jam", "🎧", "Jam Along", C.orange],
+          ["build", "🛠️", "Build Drums", C.green], ["badges", "🏆", "My Badges", C.gold]].map(([id, e, t, col]) => (
           <button key={id} onClick={() => go(id)} className="k-press"
             style={{ background: C.card, border: `3px solid ${col}`, borderRadius: 20, padding: "18px 10px",
               cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
@@ -1147,6 +1147,82 @@ function BuildScreen({ soundOn }) {
           👩‍🔧 <strong>Grown-up tip:</strong> keep the screws a little loose until everything is in place, then tighten them all at the end.
         </p>
       </KidCard>
+    </div>
+  );
+}
+
+/* ============================================================
+   SCREEN: Play a Song (kid-friendly song tutorials)
+   ============================================================ */
+const KID_SONGS = [
+  { id: "wwry", title: "We Will Rock You", artist: "Queen", emoji: "👏", color: C.pink, bpm: 70, subdiv: 2,
+    blurb: "Boom, boom, CLAP! The most famous stompy beat ever.",
+    say: "Two big booms on the kick, then a CLAP on the snare! Boom boom clap — over and over!",
+    bars: [lanesFrom({ kick: [0, 1, 4, 5], snare: [2, 6] })] },
+  { id: "rockstar", title: "The Rockstar Beat", artist: "Every rock song!", emoji: "🎸", color: C.purple, bpm: 62, subdiv: 2,
+    blurb: "The beat hiding inside a million songs.",
+    say: "The hat goes tss-tss, the snare goes crack, and the kick goes boom. Play them together and you're a rockstar!",
+    bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 4] })] },
+  { id: "stomp", title: "Seven Nation Army", artist: "The White Stripes", emoji: "🥁", color: C.cyan, bpm: 78, subdiv: 2,
+    blurb: "A big, slow, stompy beat — like a giant walking.",
+    say: "Kick, then snare, kick, then snare. Nice and big and slow, like a giant's footsteps!",
+    bars: [lanesFrom({ kick: [0, 3], snare: [2, 6] })] },
+  { id: "disco", title: "Disco Party", artist: "Space Cadets", emoji: "🕺", color: C.gold, bpm: 74, subdiv: 2,
+    blurb: "A bouncy dance beat to shake the room!",
+    say: "Kick on every beat, snare on two and four, and the hat ticking on top. Time to dance!",
+    bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 2, 4, 6] })] },
+];
+
+function SongsKidScreen({ tap, subscribeHits, midiStatus, onConnect, soundOn, awardStar }) {
+  const [openId, setOpenId] = useState(null);
+  const song = KID_SONGS.find((s) => s.id === openId);
+
+  if (song) {
+    const barsList = song.bars.length >= 2 ? song.bars : [song.bars[0], song.bars[0]];
+    return (
+      <div className="k-rise">
+        <button onClick={() => setOpenId(null)} className="k-press"
+          style={{ font: `600 16px ${FONT}`, color: C.cyan, background: "none", border: "none", cursor: "pointer", padding: 0, marginBottom: 14 }}>
+          ← All songs
+        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+          <span style={{ fontSize: 40 }}>{song.emoji}</span>
+          <div>
+            <h1 style={{ font: `700 26px ${FONT}`, color: C.ink, margin: 0 }}>{song.title}</h1>
+            <div style={{ font: `500 14px ${FONT}`, color: song.color }}>{song.artist}</div>
+          </div>
+        </div>
+        <CosmoSays text={song.say} soundOn={soundOn} mood="happy" size={84} />
+        <div style={{ height: 14 }} />
+        <KidCard color={song.color}>
+          <KidDrill key={song.id} barsList={barsList} subdiv={song.subdiv} bpm={song.bpm}
+            tap={tap} subscribeHits={subscribeHits} midiStatus={midiStatus} onConnect={onConnect}
+            soundOn={soundOn} onWin={() => { awardStar(); setOpenId(null); }} winLabel="⭐ I did it!" />
+        </KidCard>
+      </div>
+    );
+  }
+
+  return (
+    <div className="k-rise">
+      <h1 style={{ font: `700 30px ${FONT}`, color: C.ink, margin: "0 0 4px" }}>🎵 Play a Song</h1>
+      <p style={{ font: `500 17px ${FONT}`, color: C.dim, margin: "0 0 16px" }}>
+        Play along with a real song! Tap one to start. Press <strong style={{ color: C.ink }}>Show Me</strong> to hear it first.
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {KID_SONGS.map((s) => (
+          <button key={s.id} onClick={() => setOpenId(s.id)} className="k-press"
+            style={{ display: "flex", alignItems: "center", gap: 14, textAlign: "left", cursor: "pointer",
+              background: C.card, border: `3px solid ${s.color}`, borderRadius: 20, padding: 16 }}>
+            <span style={{ fontSize: 40, flexShrink: 0 }}>{s.emoji}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ font: `700 19px ${FONT}`, color: C.ink }}>{s.title}</div>
+              <div style={{ font: `500 14px ${FONT}`, color: C.dim, lineHeight: 1.35 }}>{s.blurb}</div>
+            </div>
+            <span style={{ fontSize: 26 }}>▶️</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -1288,6 +1364,8 @@ export default function KidsApp({ onExit } = {}) {
               onConnect={connect} soundOn={soundOn} awardStar={awardStar} />}
             {view === "jam" && <JamScreen tap={tap} hitPad={hitPad} midiStatus={status} onConnect={connect} soundOn={soundOn} />}
             {view === "build" && <BuildScreen soundOn={soundOn} />}
+            {view === "songs" && <SongsKidScreen tap={tap} subscribeHits={subscribeHits} midiStatus={status}
+              onConnect={connect} soundOn={soundOn} awardStar={awardStar} />}
             {view === "badges" && <BadgesScreen stars={stars} badges={badges}
               onReset={() => { setDone([]); setStars(0); setBadges([]); setView("home"); }} />}
           </>
