@@ -2182,6 +2182,52 @@ const SEQUENCES = [
       lanesFrom({ crash: [0], kick: [0, 4], snare: [2, 6], hihat: [1, 2, 3, 4, 5, 6, 7] }), // bar 8: land
     ],
   },
+  {
+    id: "half-time", kind: "learn", title: "The Half-Time Groove", subdiv: 2, bpm: 88,
+    blurb: "Big and spacious — the snare waits until beat 3. The sound of huge, slow rock.",
+    layers: [
+      { label: "1 · Kick & snare", lanes: lanesFrom({ kick: [0], snare: [4] }) },
+      { label: "2 · Add hi-hat", lanes: lanesFrom({ hihat: R(8), kick: [0], snare: [4] }) },
+    ],
+  },
+  {
+    id: "four-floor", kind: "learn", title: "Four on the Floor", subdiv: 2, bpm: 92,
+    blurb: "The dance-floor engine — a kick on every beat. Keep the pulse relentless under the backbeat.",
+    layers: [
+      { label: "1 · Kick on every beat", lanes: lanesFrom({ kick: [0, 2, 4, 6], snare: [2, 6] }) },
+      { label: "2 · Add hi-hat", lanes: lanesFrom({ hihat: R(8), kick: [0, 2, 4, 6], snare: [2, 6] }) },
+    ],
+  },
+  {
+    id: "sixteenth-fill", kind: "learn", title: "Sixteenth-Note Fill", subdiv: 4, bpm: 78,
+    blurb: "A faster, flowing fill in sixteenth notes. Start on the snare, then spill across the toms.",
+    layers: [
+      { label: "1 · Snare sixteenths", lanes: lanesFrom({ snare: R(16) }) },
+      { label: "2 · Spill to the toms", lanes: lanesFrom({ snare: [0, 1, 2, 3, 4, 5], tom1: [6, 7, 8, 9], tom3: [10, 11, 12, 13, 14, 15] }) },
+    ],
+  },
+  {
+    id: "echo-grooves", kind: "echo", title: "Call & Response — Grooves", subdiv: 2, bpm: 82,
+    blurb: "Full-groove phrases now. Listen, then echo the whole beat back — hands and feet together.",
+    phrases: [
+      { label: "Basic rock beat", lanes: lanesFrom(RB) },
+      { label: "Kick on the “and”", lanes: lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 3, 4] }) },
+      { label: "Floor-tom groove", lanes: lanesFrom({ hihat: R(8), snare: [2], tom3: [6], kick: [0, 4] }) },
+    ],
+  },
+  {
+    id: "long-workout", kind: "play", title: "12-Bar Groove Workout", subdiv: 2, bpm: 90,
+    blurb: "A longer play-through: rock groove, a fill, switch to the ride, another fill, and a crash to land. Stamina and transitions in one run.",
+    bars: [
+      lanesFrom(RB), lanesFrom(RB), lanesFrom(RB),
+      lanesFrom({ snare: [0, 1], tom1: [2, 3], tom2: [4, 5], tom3: [6, 7], kick: [0] }), // bar 4: fill
+      lanesFrom({ ride: R(8), snare: [2, 6], kick: [0, 4] }), lanesFrom({ ride: R(8), snare: [2, 6], kick: [0, 4] }),
+      lanesFrom({ ride: R(8), snare: [2, 6], kick: [0, 3, 4] }),
+      lanesFrom({ snare: [0, 1, 2, 3], tom1: [4, 5], tom2: [6, 7], tom3: [8, 9, 10, 11], kick: [0] }), // bar 8: fill
+      lanesFrom(RB), lanesFrom(RB), lanesFrom(RB),
+      lanesFrom({ crash: [0], kick: [0, 4], snare: [2, 6], hihat: [1, 2, 3, 4, 5, 6, 7] }), // bar 12: land
+    ],
+  },
 ];
 
 // schedule an arrangement's hits as audible drums via the synth, starting now
