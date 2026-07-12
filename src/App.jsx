@@ -1291,6 +1291,8 @@ function DrillRunner({ drill, stageNum, subscribeHits, midiStatus, onConnect, on
           const jitter = (Math.random() - 0.5) * 40 + (Math.random() < 0.1 ? (Math.random() - 0.5) * 80 : 0);
           const note = (PADMAP[lane.pad].notes || [38])[0];
           setTimeout(() => recordHit({ note, velocity: 92, t: performance.now() }), Math.max(0, t + jitter - performance.now()));
+          // play the actual drum sound (on the clean beat) so you can hear what's expected
+          playDrum(lane.pad, drumCtx().currentTime + Math.max(0, (t - performance.now()) / 1000), 104);
         }
       });
     }
@@ -1723,9 +1725,11 @@ function RhythmTrainer({ mode, subscribeHits, midiStatus, onConnect, logSkill })
       for (let k = 0; k < sd; k++) expRef.current.push(lastBeatRef.current + (k * interval) / sd);
       if (demoRef.current) {
         for (let k = 0; k < sd; k++) {
+          const clean = lastBeatRef.current + (k * interval) / sd;
           const jitter = (Math.random() - 0.5) * 36 + (Math.random() < 0.1 ? (Math.random() - 0.5) * 70 : 0);
-          const t = lastBeatRef.current + (k * interval) / sd + jitter;
-          setTimeout(() => recordHit({ note: 38, velocity: 90, t: performance.now() }), Math.max(0, t - performance.now()));
+          setTimeout(() => recordHit({ note: 38, velocity: 90, t: performance.now() }), Math.max(0, clean + jitter - performance.now()));
+          // audible snare on the clean beat so the demo actually sounds out the rudiment
+          playDrum("snare", drumCtx().currentTime + Math.max(0, (clean - performance.now()) / 1000), 100);
         }
       }
     }
