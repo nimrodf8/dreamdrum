@@ -2487,7 +2487,158 @@ function SequencesView({ subscribeHits, midiStatus, onConnect, logSkill }) {
   );
 }
 
-function SongsView({ subscribeHits, midiStatus, onConnect }) {
+/* ============================================================
+   SONG TUTORIALS — learn a famous drum part, section by section.
+   Teaches the groove/fills with the built-in synth (no licensed
+   audio needed). Tempos & parts are simplified for learning.
+   ============================================================ */
+const SONG_TUTORIALS = [
+  {
+    id: "abitw2", title: "Another Brick in the Wall, Pt. 2", artist: "Pink Floyd",
+    difficulty: "Beginner", bpm: 100, origBpm: 104,
+    blurb: "Nick Mason's relentless disco-rock groove — a steady beat that barely changes, with a tumbling tom fill into each chorus.",
+    sections: [
+      { label: "The main groove", subdiv: 2, bpm: 96,
+        teach: "The whole song rides on one steady beat. Right hand plays straight eighth notes on the hi-hat, the snare cracks on beats 2 and 4, and the kick drives it on beat 1, the “and” of 2, and beat 3. Keep it even and relentless — feel the disco push.",
+        bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 3, 4] })] },
+      { label: "The chorus fill", subdiv: 4, bpm: 88,
+        teach: "Right before “We don't need no education,” the drums tumble down the toms. Play sixteenth notes: four on the snare, then move down — high tom, mid tom, floor tom. Land straight back on the groove.",
+        bars: [lanesFrom({ snare: [0, 1, 2, 3], tom1: [4, 5, 6, 7], tom2: [8, 9, 10, 11], tom3: [12, 13, 14, 15] })] },
+      { label: "Play it through", subdiv: 4, bpm: 92,
+        teach: "Now the shape of a real section: three bars of the groove, then the tom fill rolling into the chorus. Tap Demo to hear the whole thing, then play along and don't stop.",
+        bars: [
+          lanesFrom({ hihat: [0, 2, 4, 6, 8, 10, 12, 14], snare: [4, 12], kick: [0, 6, 8] }),
+          lanesFrom({ hihat: [0, 2, 4, 6, 8, 10, 12, 14], snare: [4, 12], kick: [0, 6, 8] }),
+          lanesFrom({ hihat: [0, 2, 4, 6, 8, 10, 12, 14], snare: [4, 12], kick: [0, 6, 8] }),
+          lanesFrom({ snare: [0, 1, 2, 3], tom1: [4, 5, 6, 7], tom2: [8, 9, 10, 11], tom3: [12, 13, 14, 15] }),
+        ] },
+    ],
+  },
+  {
+    id: "wwry", title: "We Will Rock You", artist: "Queen",
+    difficulty: "Beginner", bpm: 81,
+    blurb: "The most famous beat in rock is just stomp–stomp–clap. A perfect first “song” — huge sound, almost no notes.",
+    sections: [
+      { label: "Stomp–stomp–clap", subdiv: 2, bpm: 81,
+        teach: "Two kicks (boom-boom) then the snare (clap!), and repeat. On the kit: kick on beat 1 and the “and” of 1, snare on beat 2 — then the same again in the second half of the bar. No hi-hat. Feel the silence between them.",
+        bars: [lanesFrom({ kick: [0, 1, 4, 5], snare: [2, 6] })] },
+      { label: "Crash to the guitar", subdiv: 2, bpm: 81,
+        teach: "Play the stomp-clap three times, then smash a crash on the “1” of the fourth bar — the moment the guitar solo blasts in. Big and simple.",
+        bars: [
+          lanesFrom({ kick: [0, 1, 4, 5], snare: [2, 6] }),
+          lanesFrom({ kick: [0, 1, 4, 5], snare: [2, 6] }),
+          lanesFrom({ kick: [0, 1, 4, 5], snare: [2, 6] }),
+          lanesFrom({ crash: [0], kick: [0] }),
+        ] },
+    ],
+  },
+  {
+    id: "sna", title: "Seven Nation Army", artist: "The White Stripes",
+    difficulty: "Beginner", bpm: 120, origBpm: 124,
+    blurb: "Meg White keeps it raw and minimal — no hi-hat, all attitude. A great lesson in playing the pocket, not the notes.",
+    sections: [
+      { label: "The driving beat", subdiv: 2, bpm: 112,
+        teach: "Bare and heavy: kick on beat 1 and the “and” of 2, snare on beats 2 and 4. No hi-hat at all. Let each hit ring and lean into the swagger — it's about feel, not busyness.",
+        bars: [lanesFrom({ kick: [0, 3], snare: [2, 6] })] },
+      { label: "Add the floor tom", subdiv: 2, bpm: 112,
+        teach: "Follow the bass riff by dropping a deep floor tom under the groove. Same kick and snare, with the floor tom booming on beat 1 — that low thud is the song's heartbeat.",
+        bars: [lanesFrom({ tom3: [0, 4], kick: [0, 3], snare: [2, 6] })] },
+    ],
+  },
+];
+
+function SongTutorialsView({ subscribeHits, midiStatus, onConnect, logSkill }) {
+  const [openId, setOpenId] = useState(null);
+  const song = SONG_TUTORIALS.find((s) => s.id === openId);
+
+  if (song) {
+    return (
+      <div className="dc-rise">
+        <button onClick={() => setOpenId(null)} className="dc-focus"
+          style={{ font: `700 12px ${FONT_MONO}`, color: T.brass, background: "none", border: "none", cursor: "pointer", padding: 0, marginBottom: 14 }}>← All song tutorials</button>
+        <Eyebrow>Song tutorial · {song.difficulty}</Eyebrow>
+        <h1 style={{ font: `800 28px ${FONT_DISPLAY}`, color: T.bone, margin: "10px 0 2px" }}>{song.title}</h1>
+        <div style={{ font: `400 13px ${FONT_MONO}`, color: T.boneDim, marginBottom: 10 }}>
+          {song.artist} · ~{song.origBpm || song.bpm} BPM{song.origBpm ? " (learn slower)" : ""}
+        </div>
+        <p style={{ font: `400 15px ${FONT_DISPLAY}`, color: T.boneDim, lineHeight: 1.6, margin: "0 0 18px" }}>{song.blurb}</p>
+
+        {song.sections.map((sec, i) => (
+          <Card key={i} style={{ marginBottom: 14 }}>
+            <Eyebrow>Part {i + 1}</Eyebrow>
+            <h2 style={{ font: `800 20px ${FONT_DISPLAY}`, color: T.bone, margin: "6px 0 8px" }}>{sec.label}</h2>
+            <p style={{ font: `400 14px ${FONT_DISPLAY}`, color: T.boneDim, lineHeight: 1.6, margin: "0 0 6px" }}>{sec.teach}</p>
+            {sec.bars.map((lanes, bi) => (
+              <div key={bi}>
+                {sec.bars.length > 1 && (
+                  <span style={{ font: `400 9px ${FONT_MONO}`, color: T.steel }}>
+                    BAR {bi + 1}{bi === sec.bars.length - 1 && sec.bars.length > 2 ? " · FILL" : ""}
+                  </span>
+                )}
+                <SeqGrid lanes={lanes} subdiv={sec.subdiv} />
+              </div>
+            ))}
+            <SequenceRunner key={song.id + i} bars={sec.bars} subdiv={sec.subdiv} bpm={sec.bpm}
+              label={`${song.title} · ${sec.label}`} subscribeHits={subscribeHits} midiStatus={midiStatus}
+              onConnect={onConnect} logSkill={logSkill} />
+          </Card>
+        ))}
+
+        <p style={{ font: `400 11px ${FONT_MONO}`, color: T.steel, marginTop: 8, lineHeight: 1.5 }}>
+          Tempos and parts are simplified for learning. DreamDrum teaches the drum groove with its own sounds — add the
+          real backing track under <strong style={{ color: T.boneDim }}>Play-along</strong> when you're ready.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="dc-rise">
+      <Eyebrow>Learn a song</Eyebrow>
+      <h1 style={{ font: `800 28px ${FONT_DISPLAY}`, color: T.bone, margin: "10px 0 6px" }}>Song Tutorials</h1>
+      <p style={{ font: `400 14px ${FONT_DISPLAY}`, color: T.boneDim, lineHeight: 1.55, margin: "0 0 20px" }}>
+        Learn famous drum parts, section by section — the groove, the fills, then the whole thing. Tap Demo on any part
+        to hear it first (no kit needed).
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {SONG_TUTORIALS.map((s) => (
+          <button key={s.id} onClick={() => setOpenId(s.id)} className="dc-focus"
+            style={{ textAlign: "left", background: T.bgCard, border: `1px solid ${T.line}`, borderRadius: 12, padding: 16, cursor: "pointer" }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 3, flexWrap: "wrap" }}>
+              <span style={{ font: `800 17px ${FONT_DISPLAY}`, color: T.bone }}>{s.title}</span>
+              <span style={{ font: `700 9px ${FONT_MONO}`, color: T.good, letterSpacing: "0.08em" }}>{s.difficulty.toUpperCase()}</span>
+            </div>
+            <div style={{ font: `400 12px ${FONT_MONO}`, color: T.brass, marginBottom: 5 }}>{s.artist} · {s.sections.length} parts</div>
+            <span style={{ font: `400 13px ${FONT_DISPLAY}`, color: T.boneDim, lineHeight: 1.5 }}>{s.blurb}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SongsView({ subscribeHits, midiStatus, onConnect, logSkill }) {
+  const [mode, setMode] = useState("learn"); // learn | play
+  const tab = (id, label) => (
+    <button key={id} onClick={() => setMode(id)} className="dc-focus"
+      style={{ font: `700 13px ${FONT_DISPLAY}`, padding: "8px 16px", borderRadius: 9, cursor: "pointer",
+        border: `1px solid ${mode === id ? T.brass : T.line}`,
+        background: mode === id ? T.brass : "transparent", color: mode === id ? T.bg : T.boneDim }}>{label}</button>
+  );
+  return (
+    <div className="dc-rise">
+      <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
+        {tab("learn", "🎓 Learn a song")}
+        {tab("play", "▶ Play-along tracks")}
+      </div>
+      {mode === "learn"
+        ? <SongTutorialsView subscribeHits={subscribeHits} midiStatus={midiStatus} onConnect={onConnect} logSkill={logSkill} />
+        : <PlayAlongView subscribeHits={subscribeHits} midiStatus={midiStatus} onConnect={onConnect} />}
+    </div>
+  );
+}
+
+function PlayAlongView({ subscribeHits, midiStatus, onConnect }) {
   const [tracks, setTracks] = useState(() => loadStore().tracks || []);
   const [defaults, setDefaults] = useState([]);
   const [activeId, setActiveId] = useState(null);
@@ -2943,7 +3094,7 @@ export default function App({ userEmail, userName, onSignOut, onKidsMode } = {})
           <SequencesView subscribeHits={subscribeHits} midiStatus={status} onConnect={connect} logSkill={logSkill} />
         )}
         {view === "songs" && (
-          <SongsView subscribeHits={subscribeHits} midiStatus={status} onConnect={connect} />
+          <SongsView subscribeHits={subscribeHits} midiStatus={status} onConnect={connect} logSkill={logSkill} />
         )}
         {view === "progress" && <ProgressView progress={progress} hits={hits} sessions={sessions} skillLog={skillLog} onReset={resetData} />}
       </main>
