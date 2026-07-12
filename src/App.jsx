@@ -2272,13 +2272,15 @@ function SeqGrid({ lanes, subdiv, active }) {
 }
 
 // Scored runner over a multi-bar arrangement (used by Learn layers and Play-through)
-function SequenceRunner({ bars, subdiv, bpm, label, subscribeHits, midiStatus, onConnect, logSkill, onDone }) {
+function SequenceRunner({ bars, subdiv, bpm, label, subscribeHits, midiStatus, onConnect, logSkill, onDone, repeat = 1 }) {
   const [phase, setPhase] = useState("idle"); // idle | countin | recording | results
   const [bar, setBar] = useState(0);
   const [lastError, setLastError] = useState(null);
   const [result, setResult] = useState(null);
   const COUNTIN = 4;
-  const totalBeats = bars.length * 4;
+  // repeat the arrangement so short patterns loop several times before scoring
+  const seq = repeat > 1 ? Array.from({ length: repeat }).flatMap(() => bars) : bars;
+  const totalBeats = seq.length * 4;
 
   const beatCountRef = useRef(0);
   const expRef = useRef([]);
@@ -2323,9 +2325,9 @@ function SequenceRunner({ bars, subdiv, bpm, label, subscribeHits, midiStatus, o
     setPhase("recording");
     const recBeat = n - COUNTIN;
     const barIndex = Math.floor(recBeat / 4);
-    if (barIndex >= bars.length) return;
+    if (barIndex >= seq.length) return;
     setBar(barIndex + 1);
-    const lanes = bars[barIndex];
+    const lanes = seq[barIndex];
     const interval = 60000 / bpmRef.current;
     const beatInBar = recBeat % 4;
     for (let k = 0; k < subdiv; k++) {
@@ -2342,7 +2344,7 @@ function SequenceRunner({ bars, subdiv, bpm, label, subscribeHits, midiStatus, o
       });
     }
     if (recBeat + 1 >= totalBeats && !finishedRef.current) { finishedRef.current = true; setTimeout(finish, 320); }
-  }, [bars, subdiv, recordHit, finish, totalBeats]);
+  }, [seq, subdiv, recordHit, finish, totalBeats]);
 
   const metro = useMetronome(bpm, 4, { onBeat, subdivision: subdiv });
   const metroRef = useRef(null); metroRef.current = metro;
@@ -2370,7 +2372,7 @@ function SequenceRunner({ bars, subdiv, bpm, label, subscribeHits, midiStatus, o
         <div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
             <span style={{ font: `700 12px ${FONT_MONO}`, color: phase === "countin" ? T.warn : T.strike }}>
-              {phase === "countin" ? "COUNT IN…" : `BAR ${bar}/${bars.length}`}
+              {phase === "countin" ? "COUNT IN…" : `BAR ${bar}/${seq.length}`}
             </span>
             <button onClick={cancel} className="dc-focus" style={{ font: `700 11px ${FONT_MONO}`, color: T.boneDim, background: "none", border: `1px solid ${T.line}`, borderRadius: 7, padding: "4px 10px", cursor: "pointer" }}>Stop</button>
           </div>
@@ -2437,7 +2439,7 @@ function EchoEcho({ phrase, subdiv, bpm, subscribeHits, midiStatus, onConnect, l
   return (
     <div>
       <div style={{ font: `700 12px ${FONT_MONO}`, color: T.brass, marginBottom: 8 }}>YOUR TURN — echo it back</div>
-      <SequenceRunner bars={[phrase.lanes]} subdiv={subdiv} bpm={bpm} label={`Echo: ${phrase.label}`}
+      <SequenceRunner bars={[phrase.lanes]} subdiv={subdiv} bpm={bpm} label={`Echo: ${phrase.label}`} repeat={2}
         subscribeHits={subscribeHits} midiStatus={midiStatus} onConnect={onConnect} logSkill={logSkill}
         onDone={onAgain} />
       <button onClick={onAgain} className="dc-focus" style={{ marginTop: 10, font: `700 11px ${FONT_MONO}`, color: T.boneDim, background: "none", border: "none", cursor: "pointer", padding: 0 }}>← listen again</button>
@@ -2472,7 +2474,7 @@ function SequencesView({ subscribeHits, midiStatus, onConnect, logSkill }) {
               ))}
             </div>
             <SeqGrid lanes={open.layers[layerIdx].lanes} subdiv={open.subdiv} />
-            <SequenceRunner key={open.id + layerIdx} bars={[open.layers[layerIdx].lanes]} subdiv={open.subdiv} bpm={open.bpm}
+            <SequenceRunner key={open.id + layerIdx} bars={[open.layers[layerIdx].lanes]} subdiv={open.subdiv} bpm={open.bpm} repeat={4}
               label={`${open.title} · ${open.layers[layerIdx].label}`} subscribeHits={subscribeHits} midiStatus={midiStatus} onConnect={onConnect} logSkill={logSkill} />
           </Card>
         )}
@@ -2502,7 +2504,7 @@ function SequencesView({ subscribeHits, midiStatus, onConnect, logSkill }) {
                 <SeqGrid lanes={lanes} subdiv={open.subdiv} />
               </div>
             ))}
-            <SequenceRunner key={open.id} bars={open.bars} subdiv={open.subdiv} bpm={open.bpm}
+            <SequenceRunner key={open.id} bars={open.bars} subdiv={open.subdiv} bpm={open.bpm} repeat={2}
               label={open.title} subscribeHits={subscribeHits} midiStatus={midiStatus} onConnect={onConnect} logSkill={logSkill} />
           </Card>
         )}
@@ -2694,7 +2696,7 @@ function SongTutorialsView({ subscribeHits, midiStatus, onConnect, logSkill }) {
                 <SeqGrid lanes={lanes} subdiv={sec.subdiv} />
               </div>
             ))}
-            <SequenceRunner key={song.id + i} bars={sec.bars} subdiv={sec.subdiv} bpm={sec.bpm}
+            <SequenceRunner key={song.id + i} bars={sec.bars} subdiv={sec.subdiv} bpm={sec.bpm} repeat={sec.bars.length > 1 ? 2 : 4}
               label={`${song.title} · ${sec.label}`} subscribeHits={subscribeHits} midiStatus={midiStatus}
               onConnect={onConnect} logSkill={logSkill} />
           </Card>
