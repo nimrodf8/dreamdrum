@@ -2696,6 +2696,29 @@ const SONG_TUTORIALS = [
         bars: [lanesFrom({ hihat: R(8), snare: [4], kick: [0, 7] })] },
     ],
   },
+  {
+    id: "neachaz", title: "נאחז באוויר", artist: "גזוז",
+    difficulty: "Beginner", bpm: 104, origBpm: 116,
+    blurb: "שיר פופ ישראלי קצבי ומרים — גרוב פופ־רוק ישר ושמח (גרסת לימוד בסגנון השיר).",
+    sections: [
+      { label: "הגרוב המרכזי", subdiv: 2, bpm: 100,
+        teach: "גרוב פופ ישר: היי־האט בשמיניות, סנר על 2 ו־4, בס על 1 ו־3. שמור על קצב יציב ושמח — זה הבסיס לכל השיר.",
+        bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 4] })] },
+      { label: "הפזמון — לפתוח", subdiv: 2, bpm: 100,
+        teach: "בפזמון עוברים לרייד ומוסיפים דחיפת בס על ה'אנד' של 2 — אותו סנר, אבל גדול ופתוח יותר.",
+        bars: [lanesFrom({ ride: R(8), snare: [2, 6], kick: [0, 3, 4] })] },
+    ],
+  },
+  {
+    id: "roni", title: "רוני", artist: "קלאסיקה ישראלית",
+    difficulty: "Beginner", bpm: 96, origBpm: 104,
+    blurb: "פופ ישראלי חמים ורגוע — גרוב פשוט לנגן לאורך השיר (גרסת לימוד בסגנון השיר).",
+    sections: [
+      { label: "הגרוב", subdiv: 2, bpm: 92,
+        teach: "גרוב פופ רגוע: היי־האט בשמיניות, סנר על 2 ו־4, בס על 1 ו־3. נגן רך ויציב ותן לשיר לנשום.",
+        bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 4] })] },
+    ],
+  },
 ];
 
 function SongTutorialsView({ subscribeHits, midiStatus, onConnect, logSkill }) {
