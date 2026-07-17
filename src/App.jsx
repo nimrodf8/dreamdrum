@@ -2660,6 +2660,42 @@ const SONG_TUTORIALS = [
         ] },
     ],
   },
+  {
+    id: "h2h", title: "Highway to Hell", artist: "AC/DC",
+    difficulty: "Beginner", bpm: 100, origBpm: 116,
+    blurb: "Gloriously simple, gloriously loud — a straight driving rock beat that's all about attitude.",
+    sections: [
+      { label: "The driving groove", subdiv: 2, bpm: 96,
+        teach: "Straight eighths on the hi-hat, snare on 2 and 4, kick on 1 and 3. No tricks — hit it hard and dead steady. The feel is the whole point.",
+        bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 4] })] },
+      { label: "Crash the chorus", subdiv: 2, bpm: 96,
+        teach: "For the chorus, open the bar with a crash instead of the hi-hat, kick underneath, and keep the same backbeat. Big and proud.",
+        bars: [lanesFrom({ crash: [0], hihat: [1, 2, 3, 4, 5, 6, 7], snare: [2, 6], kick: [0, 4] })] },
+    ],
+  },
+  {
+    id: "bib", title: "Back in Black", artist: "AC/DC",
+    difficulty: "Intermediate", bpm: 92, origBpm: 96,
+    blurb: "Phil Rudd's masterclass in the pocket — simple on paper, but it swings and breathes with attitude.",
+    sections: [
+      { label: "The main groove", subdiv: 2, bpm: 88,
+        teach: "Hats on eighths, snare on 2 and 4, and a kick that pushes on 1, the “and” of 2, and 3. Play it relaxed and just behind the beat — let it swagger.",
+        bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 3, 4] })] },
+      { label: "The turnaround fill", subdiv: 4, bpm: 84,
+        teach: "At the end of a phrase, drop a quick snare-and-tom fill to reset. Sixteenth notes: snare across the front, then spill into the high and floor toms — tight and punchy.",
+        bars: [lanesFrom({ snare: [0, 1, 2, 3, 4, 5], tom1: [6, 7, 8, 9], tom3: [10, 11, 12, 13, 14, 15] })] },
+    ],
+  },
+  {
+    id: "fgi", title: "Feel Good Inc", artist: "Gorillaz",
+    difficulty: "Intermediate", bpm: 100, origBpm: 139,
+    blurb: "A laid-back, head-nodding hip-hop feel — the snare hangs back and the whole groove leans into the pocket.",
+    sections: [
+      { label: "The laid-back groove", subdiv: 2, bpm: 92,
+        teach: "A half-time feel: the snare cracks just once, on beat 3, while the hats tick eighth notes and the kick lands on 1 and the “and” of 4. Lay right back and let it breathe.",
+        bars: [lanesFrom({ hihat: R(8), snare: [4], kick: [0, 7] })] },
+    ],
+  },
 ];
 
 function SongTutorialsView({ subscribeHits, midiStatus, onConnect, logSkill }) {

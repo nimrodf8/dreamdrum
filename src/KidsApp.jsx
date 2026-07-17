@@ -1122,6 +1122,14 @@ const KID_SONGS = [
     blurb: "A bouncy dance beat to shake the room!",
     say: "Kick on every beat, snare on two and four, and the hat ticking on top. Time to dance!",
     bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 2, 4, 6] })] },
+  { id: "march", title: "Marching Parade", artist: "Space Cadets", emoji: "🥁", color: C.green, bpm: 78, subdiv: 2,
+    blurb: "March like a soldier — snare on every step!",
+    say: "Hit the snare on every beat like marching feet, and boom the kick on one and three! Left, right, left, right!",
+    bars: [lanesFrom({ snare: [0, 2, 4, 6], kick: [0, 4] })] },
+  { id: "heartbeat", title: "Sleepy Heartbeat", artist: "Space Cadets", emoji: "💤", color: C.purple, bpm: 64, subdiv: 2,
+    blurb: "Slow and gentle, like a big heartbeat.",
+    say: "Nice and slow — boom on beat one, then crack on beat three. Boom… crack… boom… crack.",
+    bars: [lanesFrom({ kick: [0], snare: [4] })] },
 ];
 
 function SongsKidScreen({ tap, subscribeHits, midiStatus, onConnect, soundOn, awardStar }) {
