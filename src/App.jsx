@@ -2719,6 +2719,19 @@ const SONG_TUTORIALS = [
         bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 4] })] },
     ],
   },
+  {
+    id: "rainbow", title: "Rainbow Connection", artist: "Kermit / The Muppets",
+    difficulty: "Beginner", bpm: 78, origBpm: 76,
+    blurb: "The gentle classic from The Muppet Movie — soft and dreamy. A lovely study in playing quietly and holding a slow groove steady. (The original is a 6/8 waltz; here's a simple 4/4 version.)",
+    sections: [
+      { label: "The gentle groove", subdiv: 2, bpm: 76,
+        teach: "Play it soft and slow — a light hi-hat on eighth notes, a quiet snare on beats 2 and 4, and a gentle kick on 1 and 3. Barely touch the drums; it's all about a calm, steady feel.",
+        bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 4] })] },
+      { label: "Ride & a soft crash", subdiv: 2, bpm: 76,
+        teach: "For the chorus, move to the ride for a warmer, open sound and let a crash swell on beat 1. Keep everything gentle and dreamy.",
+        bars: [lanesFrom({ crash: [0], ride: [1, 2, 3, 4, 5, 6, 7], snare: [2, 6], kick: [0, 4] })] },
+    ],
+  },
 ];
 
 function SongTutorialsView({ subscribeHits, midiStatus, onConnect, logSkill }) {

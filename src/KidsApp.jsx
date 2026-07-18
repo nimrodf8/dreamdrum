@@ -1130,6 +1130,10 @@ const KID_SONGS = [
     blurb: "Slow and gentle, like a big heartbeat.",
     say: "Nice and slow — boom on beat one, then crack on beat three. Boom… crack… boom… crack.",
     bars: [lanesFrom({ kick: [0], snare: [4] })] },
+  { id: "rainbow", title: "Rainbow Connection", artist: "The Muppets", emoji: "🌈", color: C.cyan, bpm: 74, subdiv: 2,
+    blurb: "A soft, dreamy song — play nice and gentle.",
+    say: "This one is soft and slow, like a lullaby. Gently tap the hat, a quiet snare on two and four, and a soft kick. Nice and calm!",
+    bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 4] })] },
 ];
 
 function SongsKidScreen({ tap, subscribeHits, midiStatus, onConnect, soundOn, awardStar }) {
