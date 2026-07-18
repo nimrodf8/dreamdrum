@@ -1174,6 +1174,24 @@ const STAGES = [
         body: "Two more “feels” that trip drummers up — and they're all about where the snare lands. Half-time makes a groove feel slower and heavier by moving the snare to just beat 3 (instead of 2 and 4): the backbeat comes half as often, so everything feels laid-back and huge — think big rock ballads and a lot of hip-hop. Double-time is the reverse: you cram the backbeat in twice as often, so the same beat suddenly feels frantic and fast. The crucial trick: the song's actual tempo never changes — only where you place the snare. Flipping a groove between normal, half-time and double-time on command is a pro-level feel skill, and it's the same click underneath all three." },
     ],
   },
+  {
+    n: 10, title: "Transitions & Song Sections", sub: "Move between grooves and sections cleanly — the glue that turns beats into a song.",
+    lessons: [
+      { id: "10.1", title: "What a transition is", type: "read",
+        body: "A transition (a “move”) is how you get from one part of a song to another — verse to chorus, quiet to loud, groove to groove. It almost always has two pieces: a fill that leads OUT of the section you're in, and a crash on the “1” that lands you INTO the next one. The whole art is doing it without dropping a beat: the groove keeps time, the fill borrows a moment, and you arrive back exactly on the downbeat. Two rules make every transition work — stay in time the entire way through, and land cleanly on the 1. Everything in this stage is a variation on those two ideas." },
+      { id: "10.2", title: "Groove into a fill", type: "drill",
+        body: "The core transition move: leave the groove, play a fill, and hand back to the groove — here packed into a single bar so you rehearse the hand-off over and over. Two beats of groove (hi-hat, kick, snare), then two beats of fill tumbling down the toms. Count out loud the whole way; the danger points are the two seams — leaving the groove and returning to it. If either one rushes or stumbles, slow the tempo until the switch is seamless.",
+        pattern: { subdiv: 4, sticking: "2 beats groove → 2 beats fill",
+          lanes: [{ pad: "hihat", steps: [0, 2, 4, 6] }, { pad: "kick", steps: [0] }, { pad: "snare", steps: [4, 8, 9] },
+            { pad: "tom1", steps: [10, 11] }, { pad: "tom2", steps: [12, 13] }, { pad: "tom3", steps: [14, 15] }] } },
+      { id: "10.3", title: "Land on the crash", type: "drill",
+        body: "The arrival. After a fill you “land” by hitting a crash on the first beat of the new section, usually together with the kick — that crash-on-1 is the punctuation mark that says “new part starts HERE.” Play the groove but open each bar with a crash and kick instead of the hi-hat. Getting the crash to land exactly on the beat, locked with the kick, is the skill that makes your section changes sound intentional instead of accidental.",
+        pattern: { subdiv: 2, sticking: "crash + kick on the 1",
+          lanes: [{ pad: "crash", steps: [0] }, { pad: "hihat", steps: [1, 2, 3, 4, 5, 6, 7] }, { pad: "snare", steps: [2, 6] }, { pad: "kick", steps: [0, 4] }] } },
+      { id: "10.4", title: "Switching grooves between sections", type: "read", link: { view: "sequences", label: "Practice in Sequences" },
+        body: "Real songs don't just fill — they change the whole groove between sections. The classic move: a verse rides on the hi-hat (tight, contained), then the chorus jumps to the ride cymbal or crashes (open, big). The transition is a fill that signals the change, and as you land you switch your right hand from hi-hat to ride and throw a crash on the 1. Practise the switch itself: play four bars of a hi-hat groove, a one-bar fill, then four bars of the same groove on the ride. The full multi-bar version of this — groove, fill, ride, crash — lives in the Sequences tab (try the 12-Bar Groove Workout), which is built exactly for rehearsing these section-to-section moves." },
+    ],
+  },
 ];
 
 /* ============================================================
