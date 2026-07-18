@@ -2753,6 +2753,19 @@ const SONG_TUTORIALS = [
         bars: [lanesFrom({ crash: [0], ride: [1, 2, 3, 4, 5, 6, 7], snare: [2, 6], kick: [0, 4] })] },
     ],
   },
+  {
+    id: "inyan", title: "עניין של זמן", artist: "קלאסיקה ישראלית",
+    difficulty: "Beginner", bpm: 104, origBpm: 112,
+    blurb: "פופ־רוק ישראלי קצבי ומרים — גרוב ישר ואנרגטי (גרסת לימוד בסגנון השיר).",
+    sections: [
+      { label: "הגרוב המרכזי", subdiv: 2, bpm: 100,
+        teach: "גרוב פופ־רוק ישר: היי־האט בשמיניות, סנר על 2 ו־4, בס על 1 ו־3. שמור על קצב יציב ואנרגטי — זה הבסיס לכל השיר.",
+        bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 4] })] },
+      { label: "הפזמון — לפתוח", subdiv: 2, bpm: 100,
+        teach: "בפזמון מוסיפים קראש בתחילת התיבה ועוברים לרייד, עם דחיפת בס על ה'אנד' של 2 — גדול ופתוח יותר.",
+        bars: [lanesFrom({ crash: [0], ride: [1, 2, 3, 4, 5, 6, 7], snare: [2, 6], kick: [0, 3, 4] })] },
+    ],
+  },
 ];
 
 function SongTutorialsView({ subscribeHits, midiStatus, onConnect, logSkill }) {
