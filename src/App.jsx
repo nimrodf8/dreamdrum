@@ -1153,6 +1153,27 @@ const STAGES = [
           lanes: [{ pad: "hihat", steps: R(16) }, { pad: "snare", steps: [4, 12] }, { pad: "kick", steps: [0, 3, 6, 10] }] } },
     ],
   },
+  {
+    n: 9, title: "Rhythm Styles & Feels", sub: "Straight vs swung, shuffle, funk, disco — how the grooves really differ.",
+    lessons: [
+      { id: "9.1", title: "Straight vs swung", type: "read",
+        body: "The biggest difference between grooves isn't the notes — it's the FEEL. “Straight” means the eighth notes are evenly spaced: “1 and 2 and,” each the same length (rock, pop, most modern music). “Swung” (or shuffle) stretches every pair into a long-short, triplet-based lilt: “1—and, 2—and,” like a gallop or a skip. Say “humpty-dumpty” out loud — that bounce is swing. The exact same snare-and-kick pattern feels completely different straight versus swung, so the first thing to train is your ear: which one is this song? Playing straight over a swung tune (or the reverse) sounds instantly wrong." },
+      { id: "9.2", title: "Feel the shuffle", type: "drill",
+        body: "Now play the swing. In a shuffle each beat splits into three (a triplet), and you play the first and last of the three — skipping the middle — which gives that long-short bounce. Here the hi-hat shuffles two notes per beat, the snare stays on 2 and 4, and the kick anchors 1 and 3. Count “one-a two-a three-a four-a.” It should feel like a lazy gallop, not a stiff march. This triplet feel is the beating heart of blues, jazz, and countless shuffle grooves — and it's the clearest contrast to the straight beats you already know.",
+        pattern: { subdiv: 3, sticking: "shuffle hats · snare 2 & 4",
+          lanes: [{ pad: "hihat", steps: [0, 2, 3, 5, 6, 8, 9, 11] }, { pad: "snare", steps: [3, 9] }, { pad: "kick", steps: [0, 6] }] } },
+      { id: "9.3", title: "Funk vs rock", type: "drill",
+        body: "Rock and funk share the backbeat (snare on 2 and 4) but feel worlds apart — the difference is density and space. Rock is broad and even: eighth-note hats, a simple kick. Funk is tight and syncopated: sixteenth-note hats and a kick that darts onto the off-beats, locking with the bass. This groove is pure funk — sixteenths up top, snare backbeat, and a kick that pushes between the beats. Play it lighter and tighter than a rock beat; in funk the spaces matter as much as the notes.",
+        pattern: { subdiv: 4, sticking: "16th hats · funky kick",
+          lanes: [{ pad: "hihat", steps: R(16) }, { pad: "snare", steps: [4, 12] }, { pad: "kick", steps: [0, 3, 8, 11] }] } },
+      { id: "9.4", title: "Disco — four on the floor", type: "drill",
+        body: "Disco, house and most dance music are built on “four on the floor” — the kick thumps on EVERY beat, 1-2-3-4, a relentless dance pulse. That's the opposite of rock's kick on just 1 and 3. Over it, the snare keeps the backbeat on 2 and 4 and the hats tick eighths on top. Here's the core groove: kick on all four, snare on 2 and 4, hi-hat eighths. Feel how the steady kick makes it almost impossible to sit still — that pulse is the entire point of the style.",
+        pattern: { subdiv: 2, sticking: "kick on every beat",
+          lanes: [{ pad: "hihat", steps: R(8) }, { pad: "snare", steps: [2, 6] }, { pad: "kick", steps: [0, 2, 4, 6] }] } },
+      { id: "9.5", title: "Half-time & double-time", type: "read",
+        body: "Two more “feels” that trip drummers up — and they're all about where the snare lands. Half-time makes a groove feel slower and heavier by moving the snare to just beat 3 (instead of 2 and 4): the backbeat comes half as often, so everything feels laid-back and huge — think big rock ballads and a lot of hip-hop. Double-time is the reverse: you cram the backbeat in twice as often, so the same beat suddenly feels frantic and fast. The crucial trick: the song's actual tempo never changes — only where you place the snare. Flipping a groove between normal, half-time and double-time on command is a pro-level feel skill, and it's the same click underneath all three." },
+    ],
+  },
 ];
 
 /* ============================================================
