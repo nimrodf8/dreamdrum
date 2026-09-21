@@ -2784,6 +2784,19 @@ const SONG_TUTORIALS = [
         bars: [lanesFrom({ crash: [0], ride: [1, 2, 3, 4, 5, 6, 7], snare: [2, 6], kick: [0, 3, 4] })] },
     ],
   },
+  {
+    id: "parparim", title: "פרפרים", artist: "אורי בנאי",
+    difficulty: "Beginner", bpm: 92, origBpm: 100,
+    blurb: "שיר ישראלי מתנגן — גרוב פופ עדין ונעים (גרסת לימוד בסגנון השיר).",
+    sections: [
+      { label: "הגרוב", subdiv: 2, bpm: 88,
+        teach: "גרוב פופ רך: היי־האט בשמיניות, סנר על 2 ו־4, בס על 1 ו־3. נגן קליל ויציב ותן לשיר להתנגן.",
+        bars: [lanesFrom({ hihat: R(8), snare: [2, 6], kick: [0, 4] })] },
+      { label: "הפזמון", subdiv: 2, bpm: 88,
+        teach: "בפזמון פותחים עם קראש בתחילת התיבה ועוברים לרייד לאורך התיבה, עם דחיפת בס נוספת — מלא וחם יותר.",
+        bars: [lanesFrom({ crash: [0], ride: [1, 2, 3, 4, 5, 6, 7], snare: [2, 6], kick: [0, 3, 4] })] },
+    ],
+  },
 ];
 
 function SongTutorialsView({ subscribeHits, midiStatus, onConnect, logSkill }) {
